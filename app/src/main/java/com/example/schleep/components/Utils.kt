@@ -11,10 +11,24 @@ fun getSleepLength(sleepRecord: SleepRecord): Duration {
     return Duration.between(sleepStart, sleepEnd)
 }
 
-fun fromLocalDateTime(value: LocalDateTime?): String? {
-    return value?.toString()
+fun fromLocalDateTime(date: LocalDateTime?): String? {
+    return date?.toString()
 }
 
-fun toLocalDateTime(value: String?): LocalDateTime? {
-    return value?.let { LocalDateTime.parse(it) }
+fun toLocalDateTime(string: String?): LocalDateTime? {
+    return string?.let { LocalDateTime.parse(it) }
+}
+
+val dayOfWeekToStringMap =
+    mapOf(1 to "Po", 2 to "Út", 3 to "St", 4 to "Čt", 5 to "Pá", 6 to "So", 7 to "Ne")
+
+fun getDayOfWeekAsString(date: LocalDateTime?): String? {
+    return dayOfWeekToStringMap[date?.dayOfWeek?.value]
+}
+
+fun getSleepRecordLenght(sleepRecord: SleepRecord): String {
+    val lenghtInMinutes = getSleepLength(sleepRecord).toMinutes().toInt()
+    val hours = lenghtInMinutes / 60
+    val minutes = lenghtInMinutes % 60
+    return "$hours h $minutes m"
 }

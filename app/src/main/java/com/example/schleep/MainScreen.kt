@@ -58,7 +58,9 @@ fun MainScreen(userSettingsRepository: UserSettingsRepository, sleepRecordReposi
                         modifier = Modifier.padding(all = 3.dp).align(Alignment.Center)
                     )
             }
-            /*CenterAlignedTopAppBar(
+            /*TODO smazat
+
+               CenterAlignedTopAppBar(
                 colors = TopAppBarDefaults.smallTopAppBarColors(containerColor = MaterialTheme.colorScheme.primary),
                 title = { Text(textAlign = TextAlign.Center, text = "Schleep", fontWeight = FontWeight.SemiBold, color = MaterialTheme.colorScheme.onPrimary) },
                 navigationIcon = {
@@ -84,6 +86,7 @@ fun MainScreen(userSettingsRepository: UserSettingsRepository, sleepRecordReposi
                             Text(
                                 text = item.name,
                                 fontWeight = FontWeight.SemiBold,
+                                softWrap = false
                             )
                         },
                         icon = {

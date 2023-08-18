@@ -44,7 +44,7 @@ import com.example.schleep.R
 import com.example.schleep.components.Article
 import com.example.schleep.components.ArticleViewModel
 import kotlinx.coroutines.launch
-
+/*  TODO MOVE TO VIEWMODEL OR REPOSITORY... */
 val article1 = Article(
     title = "Ideální prostředí pro spánek",
     text = "Ideální prostředí pro spánek by mělo být temné, chladné a tiché. Dle expertů je nejoptimálnější teplota vzduchu v rozmezí od 15,5 do 19,5 °C. (Zwarensteyn, 2022) Svojí roli hraje také kvalita vzduchu, například vysoká hladina oxidu uhličitého nebo alergenů, může mít negativní účinky. Temnější prostředí pak podporuje tvorbu melatoninu, který lidem pomáhá usnout, zatímco vyvarování se všech rušivých zvukových vjemů předchází přerušovanému spánku. (Zwarensteyn, 2022)\n" +
@@ -61,6 +61,7 @@ val article2 = Article(
 val articles = listOf(article1, article2)
 
 val articlesViewModel = ArticleViewModel(articles)
+/*TODO*/
 
 @Composable
 fun TipsScreen() {

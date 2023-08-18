@@ -1,6 +1,5 @@
 package com.example.schleep.screens
 
-import android.util.Log
 import androidx.compose.foundation.background
 import androidx.compose.foundation.layout.Arrangement
 import androidx.compose.foundation.layout.Box
@@ -24,24 +23,28 @@ import com.example.schleep.db.SleepRecordRepository
 
 @Composable
 fun StatsScreen(sleepRecordRepository: SleepRecordRepository) {
+    /*TODO MOVE TO REPOSITORY - data layer should contain bussines logic, not UI layer!*/
     val sleepRecords = sleepRecordRepository.getAllCompleteSleepRecords()
     var sleepDurationSum = 0
-    for (sleepRecord in sleepRecords){
+    for (sleepRecord in sleepRecords) {
         sleepDurationSum += getSleepLength(sleepRecord).toMinutes().toInt()
-        Log.d("DEBUGTAG", "Value: ${sleepDurationSum} + pricteno ${getSleepLength(sleepRecord)}")
+        //Log.d("DEBUGTAG", "Value: ${sleepDurationSum} + pricteno ${getSleepLength(sleepRecord)}")
     }
     var averageSleepDuration = ""
 
-    if(sleepRecords.isEmpty()){
-       averageSleepDuration = "Nemáte žádné záznamy spánku."
-    }else{
-       averageSleepDuration = "${sleepDurationSum/sleepRecords.size}"
+    if (sleepRecords.isEmpty()) {
+        averageSleepDuration = "Nemáte žádné záznamy spánku."
+    } else {
+        val averageSleepDurationInMinutes = sleepDurationSum / sleepRecords.size
+        val hours = averageSleepDurationInMinutes / 60
+        val minutes = averageSleepDurationInMinutes % 60
+        averageSleepDuration = "$hours h $minutes m"
     }
+    /*TODO MOVE TO REPOSITORY*/
 
     Surface(
         modifier = Modifier
             .fillMaxSize()
-
             .background(MaterialTheme.colorScheme.background)
     ) {
         Column(
