@@ -18,6 +18,7 @@ import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.text.style.TextAlign
 import androidx.compose.ui.unit.dp
+import com.example.schleep.components.HorizontalLine
 import com.example.schleep.components.getSleepLength
 import com.example.schleep.db.SleepRecordRepository
 
@@ -40,6 +41,9 @@ fun StatsScreen(sleepRecordRepository: SleepRecordRepository) {
         val minutes = averageSleepDurationInMinutes % 60
         averageSleepDuration = "$hours h $minutes m"
     }
+
+    val sleepRecordCount = sleepRecords.size.toString()
+
     /*TODO MOVE TO REPOSITORY*/
 
     Surface(
@@ -77,6 +81,39 @@ fun StatsScreen(sleepRecordRepository: SleepRecordRepository) {
                         modifier = Modifier.fillMaxSize()
                     ) {
                         Text(
+                            text = "Počet záznamů:",
+                            color = MaterialTheme.colorScheme.primary,
+                            style = MaterialTheme.typography.titleLarge,
+                            modifier = Modifier
+                                .fillMaxWidth(),
+                            textAlign = TextAlign.Center
+                        )
+                        Text(
+                            text = sleepRecordCount,
+                            color = MaterialTheme.colorScheme.onSurfaceVariant,
+                            style = MaterialTheme.typography.titleLarge,
+                            modifier = Modifier
+                                .fillMaxWidth(),
+                            textAlign = TextAlign.Center
+                        )
+                        HorizontalLine()
+                        Text(
+                            text = "Průměrná délka spánku:",
+                            color = MaterialTheme.colorScheme.primary,
+                            style = MaterialTheme.typography.titleLarge,
+                            modifier = Modifier
+                                .fillMaxWidth(),
+                            textAlign = TextAlign.Center
+                        )
+                        Text(
+                            text = averageSleepDuration,
+                            color = MaterialTheme.colorScheme.onSurfaceVariant,
+                            style = MaterialTheme.typography.titleLarge,
+                            modifier = Modifier
+                                .fillMaxWidth(),
+                            textAlign = TextAlign.Center
+                        )
+                        /*Text(
                             text = averageSleepDuration,
                             color = MaterialTheme.colorScheme.primary,
                             style = MaterialTheme.typography.titleLarge,
@@ -84,7 +121,12 @@ fun StatsScreen(sleepRecordRepository: SleepRecordRepository) {
                                 .fillMaxWidth()
                                 .padding(10.dp),
                             textAlign = TextAlign.Center
-                        )
+                        )*/
+                        // TODO STATISTIKY TEXTY
+
+
+
+
                     }
                 }
             }

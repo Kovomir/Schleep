@@ -47,11 +47,7 @@ fun HomeScreen(sleepRecordRepository: SleepRecordRepository) {
 
     if (lastSleepRecordStartTime == "" && lastSleepRecordEndTime == "") {
         usableStartButton = true
-    } else if (lastSleepRecordStartTime != "" && lastSleepRecordEndTime == "") {
-        usableStartButton = false
-    } else {
-        usableStartButton = true
-    }
+    } else usableStartButton = !(lastSleepRecordStartTime != "" && lastSleepRecordEndTime == "")
 
     val snackbarHostState = remember { SnackbarHostState() }
     // Create a coroutine scope
@@ -136,7 +132,7 @@ fun HomeScreen(sleepRecordRepository: SleepRecordRepository) {
                                                         sleepRecordRepository.getLastSleepRecord()
                                                     coroutineScope.launch {
                                                         snackbarHostState.showSnackbar(
-                                                            "Zaznamenávání započato",
+                                                            "Zaznamenávání spuštěno",
                                                             withDismissAction = true
                                                         )
                                                     }
