@@ -31,7 +31,7 @@ import java.time.LocalTime
 import java.time.format.DateTimeFormatter
 
 @Composable
-fun SettingsScreen(userSettingsRepository: UserSettingsRepository) {
+fun FirstSetupScreen(userSettingsRepository: UserSettingsRepository) {
 
     val userSettings = userSettingsRepository.getUserSettings()
 
@@ -197,3 +197,6 @@ fun SettingsScreen(userSettingsRepository: UserSettingsRepository) {
         }
     }
 }
+
+
+

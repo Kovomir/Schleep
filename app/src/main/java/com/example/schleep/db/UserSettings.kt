@@ -16,6 +16,10 @@ data class UserSettings(
     @ColumnInfo(name = "wakeUpTime")
     var wakeUpTime: String? = "",
 
-    @ColumnInfo(name = "value")
-    var targetSleepTime: String? = ""
+    @ColumnInfo(name = "targetSleepTime")
+    var targetSleepTime: String? = "",
+
+    // if the app is launched for the first time after installation
+    @ColumnInfo(name = "firstLaunch")
+    var firstLaunch: Boolean = true
 )

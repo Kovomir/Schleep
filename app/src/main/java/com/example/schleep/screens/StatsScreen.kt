@@ -44,7 +44,7 @@ fun StatsScreen(sleepRecordRepository: SleepRecordRepository) {
 
     val sleepRecordCount = sleepRecords.size.toString()
 
-    /*TODO MOVE TO REPOSITORY*/
+    //TODO MOVE TO REPOSITORY
 
     Surface(
         modifier = Modifier
@@ -123,8 +123,6 @@ fun StatsScreen(sleepRecordRepository: SleepRecordRepository) {
                             textAlign = TextAlign.Center
                         )*/
                         // TODO STATISTIKY TEXTY
-
-
 
 
                     }

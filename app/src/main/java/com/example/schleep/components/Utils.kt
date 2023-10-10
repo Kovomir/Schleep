@@ -3,6 +3,7 @@ package com.example.schleep.components
 import com.example.schleep.db.SleepRecord
 import java.time.Duration
 import java.time.LocalDateTime
+import java.time.LocalTime
 
 
 fun getSleepLength(sleepRecord: SleepRecord): Duration {
@@ -31,4 +32,9 @@ fun getSleepRecordLenght(sleepRecord: SleepRecord): String {
     val hours = lenghtInMinutes / 60
     val minutes = lenghtInMinutes % 60
     return "$hours h $minutes m"
+}
+
+fun countBedTime(wakeUpTime: LocalTime, targetSleepTime: LocalTime): LocalTime {
+    return wakeUpTime.minusHours(targetSleepTime.hour.toLong())
+        .minusMinutes(targetSleepTime.minute.toLong())
 }
