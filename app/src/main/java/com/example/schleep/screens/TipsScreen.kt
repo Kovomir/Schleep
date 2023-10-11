@@ -85,11 +85,11 @@ fun TipsScreen() {
 @Composable
 fun ArticleListScreen(viewModel: ArticleViewModel) {
     val articles = viewModel.articles
-    var selectedArticle = viewModel.selectedArticle
+    val selectedArticle = viewModel.selectedArticle
     var expanded by remember {
         mutableStateOf(false)
     }
-    var scrollState = rememberScrollState()
+    val scrollState = rememberScrollState()
     val coroutineScope = rememberCoroutineScope()
 
     Column(
@@ -120,7 +120,7 @@ fun ArticleListScreen(viewModel: ArticleViewModel) {
                 }
                 if (selectedArticle == null) {
                     Text(
-                        text = "Vyberte článek}",
+                        text = "Vyberte článek",
                         color = MaterialTheme.colorScheme.secondary,
                         style = MaterialTheme.typography.titleLarge,
                         textAlign = TextAlign.Center

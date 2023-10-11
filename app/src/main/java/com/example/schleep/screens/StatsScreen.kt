@@ -59,7 +59,7 @@ fun StatsScreen(sleepRecordRepository: SleepRecordRepository) {
                 .fillMaxWidth()
         ) {
             Text(
-                text = "Statistics",
+                text = "Statistiky",
                 color = MaterialTheme.colorScheme.primary,
                 style = MaterialTheme.typography.headlineLarge,
                 textAlign = TextAlign.Center

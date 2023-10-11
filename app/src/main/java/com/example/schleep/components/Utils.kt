@@ -5,6 +5,8 @@ import java.time.Duration
 import java.time.LocalDateTime
 import java.time.LocalTime
 
+const val WELCOME_SCREEN_ROUTE: String = "welcomeScreen"
+const val FIRST_SETUP_SCREEN_ROUTE: String = "firstSetup"
 
 fun getSleepLength(sleepRecord: SleepRecord): Duration {
     val sleepStart = toLocalDateTime(sleepRecord.startTime)

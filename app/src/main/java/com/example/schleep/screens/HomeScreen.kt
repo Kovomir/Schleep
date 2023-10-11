@@ -104,7 +104,7 @@ fun HomeScreen(sleepRecordRepository: SleepRecordRepository) {
                             ) {
                                 Column(horizontalAlignment = Alignment.CenterHorizontally) {
                                     Text(
-                                        text = "Než půjdete spát, spusťte záznam spánku a při vstávání ráno jej ukončete.",
+                                        text = "Než půjdeš večer spát, spusť záznam spánku a při vstávání ráno jej ukonči.",
                                         color = MaterialTheme.colorScheme.onSurfaceVariant,
                                         style = MaterialTheme.typography.titleMedium,
                                         textAlign = TextAlign.Center
