@@ -1,8 +1,6 @@
 package com.example.schleep.screens
 
 import androidx.compose.foundation.background
-import androidx.compose.foundation.layout.Arrangement
-import androidx.compose.foundation.layout.Box
 import androidx.compose.foundation.layout.Column
 import androidx.compose.foundation.layout.Spacer
 import androidx.compose.foundation.layout.fillMaxSize
@@ -18,20 +16,33 @@ import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.text.style.TextAlign
 import androidx.compose.ui.unit.dp
-import com.example.schleep.components.HorizontalLine
 import com.example.schleep.components.getSleepLength
+import com.example.schleep.components.getSleepRecordsAfterDate
+import com.example.schleep.components.toLocalTime
 import com.example.schleep.db.SleepRecordRepository
+import com.example.schleep.db.UserSettingsRepository
+import java.time.Duration
+import java.time.LocalDateTime
+import java.time.LocalTime
+
 
 @Composable
-fun StatsScreen(sleepRecordRepository: SleepRecordRepository) {
+fun StatsScreen(
+    sleepRecordRepository: SleepRecordRepository,
+    userSettingsRepository: UserSettingsRepository
+) {
     /*TODO MOVE TO REPOSITORY - data layer should contain bussines logic, not UI layer!*/
     val sleepRecords = sleepRecordRepository.getAllCompleteSleepRecords()
+    val userSettings = userSettingsRepository.getUserSettings()
+
     var sleepDurationSum = 0
+
     for (sleepRecord in sleepRecords) {
         sleepDurationSum += getSleepLength(sleepRecord).toMinutes().toInt()
         //Log.d("DEBUGTAG", "Value: ${sleepDurationSum} + pricteno ${getSleepLength(sleepRecord)}")
     }
-    var averageSleepDuration = ""
+
+    val averageSleepDuration: String
 
     if (sleepRecords.isEmpty()) {
         averageSleepDuration = "Nemáte žádné záznamy spánku."
@@ -44,7 +55,30 @@ fun StatsScreen(sleepRecordRepository: SleepRecordRepository) {
 
     val sleepRecordCount = sleepRecords.size.toString()
 
-    //TODO MOVE TO REPOSITORY
+    //Get sleep records from the last 7 days
+    val dateBeforeOneWeek = LocalDateTime.now().with(LocalTime.MIDNIGHT).minusWeeks(1)
+    val lastWeekSleepRecords = getSleepRecordsAfterDate(sleepRecords, dateBeforeOneWeek)
+
+    val targetSleepTime = toLocalTime(userSettings.targetSleepTime)
+    //convert LocalDateTime into duration from midnight
+    val targetSleepDuration = Duration.between(targetSleepTime?.with(LocalTime.MIDNIGHT), targetSleepTime)
+
+    var sleepDebtPastWeek = 0
+    var sleepDebtPastWeekString = "Nemáte žádné záznamy z minulého týdne."
+    if(lastWeekSleepRecords.isNotEmpty()){
+        for (sleepRecord in lastWeekSleepRecords) {
+            val sleepDuration = getSleepLength(sleepRecord)
+            if(sleepDuration < targetSleepDuration) {
+                sleepDebtPastWeek += (targetSleepDuration.toMinutes().toInt() - sleepDuration.toMinutes().toInt())
+            }
+        }
+        val hours = sleepDebtPastWeek / 60
+        val minutes = sleepDebtPastWeek % 60
+
+        sleepDebtPastWeekString = "$hours h $minutes m"
+    }
+
+    //TODO END MOVE TO REPOSITORY
 
     Surface(
         modifier = Modifier
@@ -65,7 +99,7 @@ fun StatsScreen(sleepRecordRepository: SleepRecordRepository) {
                 textAlign = TextAlign.Center
             )
             Spacer(modifier = Modifier.height(10.dp))
-            Box(contentAlignment = Alignment.Center, modifier = Modifier.fillMaxSize()) {
+            Column(modifier = Modifier.fillMaxSize()) {
                 Card(
                     modifier = Modifier
                         .background(
@@ -73,60 +107,106 @@ fun StatsScreen(sleepRecordRepository: SleepRecordRepository) {
                             shape = MaterialTheme.shapes.large
                         )
                         .padding(all = 10.dp)
-                        .fillMaxSize()
                 ) {
-                    Column(
-                        horizontalAlignment = Alignment.CenterHorizontally,
-                        verticalArrangement = Arrangement.Center,
-                        modifier = Modifier.fillMaxSize()
-                    ) {
-                        Text(
-                            text = "Počet záznamů:",
-                            color = MaterialTheme.colorScheme.primary,
-                            style = MaterialTheme.typography.titleLarge,
-                            modifier = Modifier
-                                .fillMaxWidth(),
-                            textAlign = TextAlign.Center
-                        )
-                        Text(
-                            text = sleepRecordCount,
-                            color = MaterialTheme.colorScheme.onSurfaceVariant,
-                            style = MaterialTheme.typography.titleLarge,
-                            modifier = Modifier
-                                .fillMaxWidth(),
-                            textAlign = TextAlign.Center
-                        )
-                        HorizontalLine()
-                        Text(
-                            text = "Průměrná délka spánku:",
-                            color = MaterialTheme.colorScheme.primary,
-                            style = MaterialTheme.typography.titleLarge,
-                            modifier = Modifier
-                                .fillMaxWidth(),
-                            textAlign = TextAlign.Center
-                        )
-                        Text(
-                            text = averageSleepDuration,
-                            color = MaterialTheme.colorScheme.onSurfaceVariant,
-                            style = MaterialTheme.typography.titleLarge,
-                            modifier = Modifier
-                                .fillMaxWidth(),
-                            textAlign = TextAlign.Center
-                        )
-                        /*Text(
-                            text = averageSleepDuration,
-                            color = MaterialTheme.colorScheme.primary,
-                            style = MaterialTheme.typography.titleLarge,
-                            modifier = Modifier
-                                .fillMaxWidth()
-                                .padding(10.dp),
-                            textAlign = TextAlign.Center
-                        )*/
-                        // TODO STATISTIKY TEXTY
-
-
-                    }
+                    Text(
+                        text = "Celkový počet záznamů:",
+                        color = MaterialTheme.colorScheme.primary,
+                        style = MaterialTheme.typography.titleLarge,
+                        modifier = Modifier
+                            .fillMaxWidth(),
+                        textAlign = TextAlign.Center
+                    )
+                    Text(
+                        text = sleepRecordCount,
+                        color = MaterialTheme.colorScheme.onSurfaceVariant,
+                        style = MaterialTheme.typography.titleLarge,
+                        modifier = Modifier
+                            .fillMaxWidth(),
+                        textAlign = TextAlign.Center
+                    )
                 }
+
+                Spacer(modifier = Modifier.height(10.dp))
+                Card(
+                    modifier = Modifier
+                        .background(
+                            color = MaterialTheme.colorScheme.surfaceVariant,
+                            shape = MaterialTheme.shapes.large
+                        )
+                        .padding(all = 10.dp)
+                ) {
+                    Text(
+                        text = "Průměrná délka spánku:",
+                        color = MaterialTheme.colorScheme.primary,
+                        style = MaterialTheme.typography.titleLarge,
+                        modifier = Modifier
+                            .fillMaxWidth(),
+                        textAlign = TextAlign.Center
+                    )
+                    Text(
+                        text = averageSleepDuration,
+                        color = MaterialTheme.colorScheme.onSurfaceVariant,
+                        style = MaterialTheme.typography.titleLarge,
+                        modifier = Modifier
+                            .fillMaxWidth(),
+                        textAlign = TextAlign.Center
+                    )
+                }
+
+                Spacer(modifier = Modifier.height(10.dp))
+                Card(
+                    modifier = Modifier
+                        .background(
+                            color = MaterialTheme.colorScheme.surfaceVariant,
+                            shape = MaterialTheme.shapes.large
+                        )
+                        .padding(all = 10.dp)
+                ) {
+                    Text(
+                        text = "Spánkový dluh za poslední týden:",
+                        color = MaterialTheme.colorScheme.primary,
+                        style = MaterialTheme.typography.titleLarge,
+                        modifier = Modifier
+                            .fillMaxWidth(),
+                        textAlign = TextAlign.Center
+                    )
+                    Text(
+                        text = sleepDebtPastWeekString,
+                        color = MaterialTheme.colorScheme.onSurfaceVariant,
+                        style = MaterialTheme.typography.titleLarge,
+                        modifier = Modifier
+                            .fillMaxWidth(),
+                        textAlign = TextAlign.Center
+                    )
+                }
+
+                Spacer(modifier = Modifier.height(10.dp))
+                Card(
+                    modifier = Modifier
+                        .background(
+                            color = MaterialTheme.colorScheme.surfaceVariant,
+                            shape = MaterialTheme.shapes.large
+                        )
+                        .padding(all = 10.dp)
+                ) {
+                    Text(
+                        text = "Lorem ipsum:",
+                        color = MaterialTheme.colorScheme.primary,
+                        style = MaterialTheme.typography.titleLarge,
+                        modifier = Modifier
+                            .fillMaxWidth(),
+                        textAlign = TextAlign.Center
+                    )
+                    Text(
+                        text = targetSleepDuration.toString(),
+                        color = MaterialTheme.colorScheme.onSurfaceVariant,
+                        style = MaterialTheme.typography.titleLarge,
+                        modifier = Modifier
+                            .fillMaxWidth(),
+                        textAlign = TextAlign.Center
+                    )
+                }
+
             }
         }
     }

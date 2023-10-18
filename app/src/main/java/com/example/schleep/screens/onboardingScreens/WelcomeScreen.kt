@@ -13,9 +13,10 @@ import androidx.compose.foundation.layout.height
 import androidx.compose.foundation.layout.padding
 import androidx.compose.foundation.layout.width
 import androidx.compose.foundation.shape.CircleShape
+import androidx.compose.foundation.text.KeyboardActions
+import androidx.compose.foundation.text.KeyboardOptions
 import androidx.compose.material3.Button
 import androidx.compose.material3.Card
-import androidx.compose.material3.ExperimentalMaterial3Api
 import androidx.compose.material3.MaterialTheme
 import androidx.compose.material3.OutlinedTextField
 import androidx.compose.material3.Surface
@@ -26,12 +27,15 @@ import androidx.compose.runtime.mutableStateOf
 import androidx.compose.runtime.remember
 import androidx.compose.runtime.setValue
 import androidx.compose.ui.Alignment
+import androidx.compose.ui.ExperimentalComposeUiApi
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.draw.shadow
 import androidx.compose.ui.graphics.DefaultShadowColor
 import androidx.compose.ui.graphics.painter.Painter
 import androidx.compose.ui.layout.ContentScale
+import androidx.compose.ui.platform.LocalSoftwareKeyboardController
 import androidx.compose.ui.res.painterResource
+import androidx.compose.ui.text.input.ImeAction
 import androidx.compose.ui.text.style.TextAlign
 import androidx.compose.ui.unit.dp
 import androidx.navigation.NavController
@@ -41,7 +45,7 @@ import com.example.schleep.components.WELCOME_SCREEN_ROUTE
 import com.example.schleep.db.UserSettingsRepository
 import kotlin.text.Typography.nbsp
 
-@OptIn(ExperimentalMaterial3Api::class)
+@OptIn(ExperimentalComposeUiApi::class)
 @Composable
 fun WelcomeScreen(userSettingsRepository: UserSettingsRepository, navController: NavController) {
     Surface(
@@ -112,11 +116,16 @@ fun WelcomeScreen(userSettingsRepository: UserSettingsRepository, navController:
 
                         val userSettings = userSettingsRepository.getUserSettings()
                         var userName by remember { mutableStateOf(userSettings.userName) }
+                        val keyboardController = LocalSoftwareKeyboardController.current
                         OutlinedTextField(
                             modifier = Modifier
                                 .width(280.dp)
                                 .padding(horizontal = 15.dp),
                             value = userName,
+                            singleLine = true,
+                            keyboardOptions = KeyboardOptions(imeAction = ImeAction.Done),
+                            keyboardActions = KeyboardActions(
+                                onDone = {keyboardController?.hide()}),
                             onValueChange = { userName = it },
                             placeholder = { Text("Tvé jméno") },
                             label = { Text(text = "Jak se jmenuješ?")}

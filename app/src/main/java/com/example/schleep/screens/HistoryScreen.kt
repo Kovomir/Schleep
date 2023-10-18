@@ -7,12 +7,14 @@ import androidx.compose.animation.shrinkVertically
 import androidx.compose.foundation.ExperimentalFoundationApi
 import androidx.compose.foundation.background
 import androidx.compose.foundation.layout.Box
+import androidx.compose.foundation.layout.Column
 import androidx.compose.foundation.layout.Spacer
 import androidx.compose.foundation.layout.fillMaxSize
 import androidx.compose.foundation.layout.fillMaxWidth
 import androidx.compose.foundation.layout.height
 import androidx.compose.foundation.layout.padding
-import androidx.compose.foundation.lazy.LazyColumn
+import androidx.compose.foundation.rememberScrollState
+import androidx.compose.foundation.verticalScroll
 import androidx.compose.material.icons.Icons
 import androidx.compose.material.icons.filled.Delete
 import androidx.compose.material3.Card
@@ -40,49 +42,51 @@ import java.time.format.DateTimeFormatter
 @Composable
 fun HistoryScreen(sleepRecordRepository: SleepRecordRepository) {
     val sleepRecords = sleepRecordRepository.getAllCompleteSleepRecords()
+    val scrollState = rememberScrollState()
+
     Surface(
         modifier = Modifier
             .fillMaxSize()
             .background(MaterialTheme.colorScheme.background)
     ) {
-        LazyColumn(
+        Column(
             horizontalAlignment = Alignment.CenterHorizontally,
             modifier = Modifier
-                .padding(all = 10.dp)
+                .padding(all = 5.dp)
                 .background(color = MaterialTheme.colorScheme.background)
                 .fillMaxWidth()
         ) {
-            stickyHeader {
-                Surface(
-                    modifier = Modifier
-                        .fillMaxSize()
-                        .background(MaterialTheme.colorScheme.background)
-                ) {
-                    Text(
-                        text = "Historie",
-                        color = MaterialTheme.colorScheme.primary,
-                        style = MaterialTheme.typography.headlineLarge,
-                        textAlign = TextAlign.Center
-                    )
-                    Spacer(modifier = Modifier.height(50.dp))
-                }
-            }
-            for (sleepRecord in sleepRecords) {
-                val startTime = toLocalDateTime(sleepRecord.startTime)
-                val endTime = toLocalDateTime(sleepRecord.endTime)
+            Text(
+                text = "Historie",
+                color = MaterialTheme.colorScheme.primary,
+                style = MaterialTheme.typography.headlineLarge,
+                textAlign = TextAlign.Center
+            )
+            Spacer(modifier = Modifier.height(10.dp))
+            Column(
+                horizontalAlignment = Alignment.CenterHorizontally,
+                modifier = Modifier
+                    .background(color = MaterialTheme.colorScheme.background)
+                    .fillMaxWidth()
+                    .verticalScroll(scrollState)
+            ) {
+                for (sleepRecord in sleepRecords) {
+                    val startTime = toLocalDateTime(sleepRecord.startTime)
+                    val endTime = toLocalDateTime(sleepRecord.endTime)
 
-                val formatter = DateTimeFormatter.ofPattern("d.M.yyyy H:mm")
-                val formatedStartTime = startTime?.format(formatter)
-                val formatedEndTime = endTime?.format(formatter)
+                    val formatter = DateTimeFormatter.ofPattern("d.M.yyyy H:mm")
+                    val formatedStartTime = startTime?.format(formatter)
+                    val formatedEndTime = endTime?.format(formatter)
 
-                val startTimeDayOfWeek = getDayOfWeekAsString(startTime)
-                val endTimeDayOfWeek = getDayOfWeekAsString(endTime)
+                    val startTimeDayOfWeek = getDayOfWeekAsString(startTime)
+                    val endTimeDayOfWeek = getDayOfWeekAsString(endTime)
 
-                item {
                     var hidden by remember {
                         mutableStateOf(false)
                     }
+
                     AnimatedVisibility(
+                        modifier = Modifier.padding(bottom = 10.dp),
                         visible = !hidden,
                         enter = expandVertically(),
                         exit = shrinkVertically(animationSpec = tween(durationMillis = 250))
@@ -159,12 +163,11 @@ fun HistoryScreen(sleepRecordRepository: SleepRecordRepository) {
                                     .fillMaxWidth(),
                                 textAlign = TextAlign.Center
                             )
-                            Spacer(modifier = Modifier.height(10.dp))
                         }
                     }
-                    Spacer(modifier = Modifier.height(10.dp))
                 }
             }
         }
+
     }
 }

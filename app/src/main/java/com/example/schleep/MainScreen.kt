@@ -165,7 +165,8 @@ fun MainScreen(
                     SettingsScreen(userSettingsRepository = userSettingsRepository)
                 }
                 composable(route = BottomNavItem.Stats.route) {
-                    StatsScreen(sleepRecordRepository = sleepRecordRepository)
+                    StatsScreen(sleepRecordRepository = sleepRecordRepository,
+                    userSettingsRepository = userSettingsRepository)
                 }
                 composable(route = BottomNavItem.Tips.route) {
                     TipsScreen()

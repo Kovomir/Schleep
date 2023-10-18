@@ -1,6 +1,7 @@
 package com.example.schleep
 
 import android.os.Bundle
+import android.view.Window
 import androidx.activity.ComponentActivity
 import androidx.activity.compose.setContent
 import androidx.compose.foundation.layout.fillMaxSize
@@ -15,7 +16,8 @@ import com.example.schleep.db.UserSettingsRepository
 class MainActivity : ComponentActivity() {
     override fun onCreate(savedInstanceState: Bundle?) {
         super.onCreate(savedInstanceState)
-
+        //hides app title, which was visible on Android api level 33
+        requestWindowFeature(Window.FEATURE_NO_TITLE)
         val db by lazy { SchleepDatabase.getDatabase(applicationContext) }
 
         val userSettingsRepository = UserSettingsRepository(db.userSettingsDao)

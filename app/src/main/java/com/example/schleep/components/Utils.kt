@@ -22,6 +22,10 @@ fun toLocalDateTime(string: String?): LocalDateTime? {
     return string?.let { LocalDateTime.parse(it) }
 }
 
+fun toLocalTime(string: String?): LocalTime? {
+    return string?.let { LocalTime.parse(it) }
+}
+
 val dayOfWeekToStringMap =
     mapOf(1 to "Po", 2 to "Út", 3 to "St", 4 to "Čt", 5 to "Pá", 6 to "So", 7 to "Ne")
 
@@ -39,4 +43,21 @@ fun getSleepRecordLenght(sleepRecord: SleepRecord): String {
 fun countBedTime(wakeUpTime: LocalTime, targetSleepTime: LocalTime): LocalTime {
     return wakeUpTime.minusHours(targetSleepTime.hour.toLong())
         .minusMinutes(targetSleepTime.minute.toLong())
+}
+
+fun getSleepRecordsAfterDate(
+    sleepRecords: List<SleepRecord>,
+    date: LocalDateTime
+): List<SleepRecord> {
+    val sleepRecordsAfterDate: ArrayList<SleepRecord> = ArrayList()
+    if (sleepRecords.isEmpty()) {
+        return sleepRecordsAfterDate
+    }
+
+    for (sleepRecord in sleepRecords) {
+        if (toLocalDateTime(sleepRecord.endTime)!! >= date) {
+            sleepRecordsAfterDate.add(sleepRecord)
+        }
+    }
+    return sleepRecordsAfterDate
 }
