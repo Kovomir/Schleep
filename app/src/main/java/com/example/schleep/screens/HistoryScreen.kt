@@ -4,7 +4,6 @@ import androidx.compose.animation.AnimatedVisibility
 import androidx.compose.animation.core.tween
 import androidx.compose.animation.expandVertically
 import androidx.compose.animation.shrinkVertically
-import androidx.compose.foundation.ExperimentalFoundationApi
 import androidx.compose.foundation.background
 import androidx.compose.foundation.layout.Box
 import androidx.compose.foundation.layout.Column
@@ -38,7 +37,6 @@ import com.example.schleep.components.toLocalDateTime
 import com.example.schleep.db.SleepRecordRepository
 import java.time.format.DateTimeFormatter
 
-@OptIn(ExperimentalFoundationApi::class)
 @Composable
 fun HistoryScreen(sleepRecordRepository: SleepRecordRepository) {
     val sleepRecords = sleepRecordRepository.getAllCompleteSleepRecords()

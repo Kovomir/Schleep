@@ -12,7 +12,6 @@ import androidx.compose.foundation.layout.height
 import androidx.compose.foundation.layout.padding
 import androidx.compose.foundation.layout.size
 import androidx.compose.foundation.shape.CircleShape
-import androidx.compose.material3.ExperimentalMaterial3Api
 import androidx.compose.material3.Icon
 import androidx.compose.material3.MaterialTheme
 import androidx.compose.material3.NavigationBar
@@ -38,15 +37,14 @@ import com.example.schleep.components.FIRST_SETUP_SCREEN_ROUTE
 import com.example.schleep.components.WELCOME_SCREEN_ROUTE
 import com.example.schleep.db.SleepRecordRepository
 import com.example.schleep.db.UserSettingsRepository
-import com.example.schleep.screens.onboardingScreens.FirstSetupScreen
 import com.example.schleep.screens.HistoryScreen
 import com.example.schleep.screens.HomeScreen
-import com.example.schleep.screens.onboardingScreens.WelcomeScreen
 import com.example.schleep.screens.SettingsScreen
 import com.example.schleep.screens.StatsScreen
 import com.example.schleep.screens.TipsScreen
+import com.example.schleep.screens.onboardingScreens.FirstSetupScreen
+import com.example.schleep.screens.onboardingScreens.WelcomeScreen
 
-@OptIn(ExperimentalMaterial3Api::class)
 @Composable
 fun MainScreen(
     userSettingsRepository: UserSettingsRepository,
@@ -165,8 +163,10 @@ fun MainScreen(
                     SettingsScreen(userSettingsRepository = userSettingsRepository)
                 }
                 composable(route = BottomNavItem.Stats.route) {
-                    StatsScreen(sleepRecordRepository = sleepRecordRepository,
-                    userSettingsRepository = userSettingsRepository)
+                    StatsScreen(
+                        sleepRecordRepository = sleepRecordRepository,
+                        userSettingsRepository = userSettingsRepository
+                    )
                 }
                 composable(route = BottomNavItem.Tips.route) {
                     TipsScreen()

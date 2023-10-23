@@ -6,7 +6,7 @@ import android.app.NotificationManager
 import android.content.Context
 import com.example.schleep.components.alarm.AlarmNotificationService
 
-class SchleepApp: Application() {
+class SchleepApp : Application() {
     override fun onCreate() {
         super.onCreate()
         createNotificationChannel()
@@ -20,7 +20,8 @@ class SchleepApp: Application() {
         )
 
         channel.description = "Používané pro notifikace budíku"
-        val notificationManager = getSystemService((Context.NOTIFICATION_SERVICE)) as NotificationManager
+        val notificationManager =
+            getSystemService((Context.NOTIFICATION_SERVICE)) as NotificationManager
         notificationManager.createNotificationChannel(channel)
     }
 }

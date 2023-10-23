@@ -1,8 +1,6 @@
 package com.example.schleep.screens
 
 import androidx.compose.foundation.background
-import androidx.compose.foundation.gestures.Orientation
-import androidx.compose.foundation.gestures.scrollable
 import androidx.compose.foundation.layout.Arrangement
 import androidx.compose.foundation.layout.Box
 import androidx.compose.foundation.layout.Column
@@ -17,7 +15,6 @@ import androidx.compose.foundation.rememberScrollState
 import androidx.compose.foundation.verticalScroll
 import androidx.compose.material3.Button
 import androidx.compose.material3.Card
-import androidx.compose.material3.ExperimentalMaterial3Api
 import androidx.compose.material3.MaterialTheme
 import androidx.compose.material3.OutlinedTextField
 import androidx.compose.material3.Surface
@@ -37,10 +34,8 @@ import com.example.schleep.db.UserSettingsRepository
 import java.time.LocalTime
 import java.time.format.DateTimeFormatter
 
-@OptIn(ExperimentalMaterial3Api::class)
 @Composable
 fun SettingsScreen(userSettingsRepository: UserSettingsRepository) {
-
     val userSettings = userSettingsRepository.getUserSettings()
 
     var wakeUpTime by remember {
@@ -207,12 +202,14 @@ fun SettingsScreen(userSettingsRepository: UserSettingsRepository) {
             }
 
             //TODO DODĚLAT
-            Card( modifier = Modifier
-                .background(
-                    color = MaterialTheme.colorScheme.surfaceVariant,
-                    shape = MaterialTheme.shapes.large
-                )
-                .padding(all = 10.dp)){
+            Card(
+                modifier = Modifier
+                    .background(
+                        color = MaterialTheme.colorScheme.surfaceVariant,
+                        shape = MaterialTheme.shapes.large
+                    )
+                    .padding(all = 10.dp)
+            ) {
                 //TODO SMAZAT
                 Button(onClick = {
 
@@ -232,7 +229,7 @@ fun SettingsScreen(userSettingsRepository: UserSettingsRepository) {
                     value = userName,
                     onValueChange = { userName = it },
                     placeholder = { Text("Tvé jméno") },
-                    label = { Text(text = "Jak se jmenuješ?")}
+                    label = { Text(text = "Jak se jmenuješ?") }
                 )//TODO DODĚLAT ULOŽENÍ DO DB -> NAPŘ TLAČÍTKO
             }
         }
