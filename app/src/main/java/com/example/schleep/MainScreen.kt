@@ -44,11 +44,13 @@ import com.example.schleep.screens.StatsScreen
 import com.example.schleep.screens.TipsScreen
 import com.example.schleep.screens.onboardingScreens.FirstSetupScreen
 import com.example.schleep.screens.onboardingScreens.WelcomeScreen
+import com.google.firebase.firestore.FirebaseFirestore
 
 @Composable
 fun MainScreen(
     userSettingsRepository: UserSettingsRepository,
-    sleepRecordRepository: SleepRecordRepository
+    sleepRecordRepository: SleepRecordRepository,
+    firestoreDatabase: FirebaseFirestore
 ) {
     val navController = rememberNavController()
     val backStackEntry = navController.currentBackStackEntryAsState()
@@ -165,7 +167,8 @@ fun MainScreen(
                 composable(route = BottomNavItem.Stats.route) {
                     StatsScreen(
                         sleepRecordRepository = sleepRecordRepository,
-                        userSettingsRepository = userSettingsRepository
+                        userSettingsRepository = userSettingsRepository,
+                        firestoreDatabase = firestoreDatabase
                     )
                 }
                 composable(route = BottomNavItem.Tips.route) {

@@ -26,15 +26,18 @@ import com.example.schleep.components.getSleepRecordsAfterDate
 import com.example.schleep.components.toLocalDateTime
 import com.example.schleep.db.SleepRecordRepository
 import com.example.schleep.db.UserSettingsRepository
+import com.google.firebase.firestore.FirebaseFirestore
 import java.time.Duration
 import java.time.LocalDateTime
 import java.time.LocalTime
 
-
 @Composable
 fun StatsScreen(
-    sleepRecordRepository: SleepRecordRepository, userSettingsRepository: UserSettingsRepository
-) {/*TODO MOVE TO REPOSITORY - data layer should contain bussines logic, not UI layer!*/
+    sleepRecordRepository: SleepRecordRepository,
+    userSettingsRepository: UserSettingsRepository,
+    firestoreDatabase: FirebaseFirestore
+) {
+    /*TODO MOVE TO REPOSITORY - data layer should contain bussines logic, not UI layer!*/
     val sleepRecords = sleepRecordRepository.getAllCompleteSleepRecords()
     val userSettings = userSettingsRepository.getUserSettings()
     val targetSleepTime = LocalTime.parse(userSettings.targetSleepTime)
