@@ -27,8 +27,8 @@ import androidx.compose.ui.Modifier
 import androidx.compose.ui.text.style.TextAlign
 import androidx.compose.ui.unit.dp
 import androidx.navigation.NavController
-import com.example.schleep.components.BottomNavItem
-import com.example.schleep.components.countBedTime
+import com.example.schleep.utils.BottomNavItem
+import com.example.schleep.utils.countBedTime
 import com.example.schleep.db.UserSettingsRepository
 import com.example.schleep.screens.TimePickerScreen
 import java.time.LocalTime

@@ -1,5 +1,7 @@
 package com.example.schleep.screens
 
+import android.content.ContentValues.TAG
+import android.util.Log
 import androidx.compose.foundation.background
 import androidx.compose.foundation.layout.Arrangement
 import androidx.compose.foundation.layout.Box
@@ -27,14 +29,33 @@ import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.text.style.TextAlign
 import androidx.compose.ui.unit.dp
-import com.example.schleep.components.fromLocalDateTime
 import com.example.schleep.db.SleepRecord
 import com.example.schleep.db.SleepRecordRepository
+import com.example.schleep.db.UserSettings
+import com.example.schleep.utils.UserHighScore
+import com.example.schleep.utils.countBedTime
+import com.example.schleep.utils.followedSleepRoutine
+import com.example.schleep.utils.fromLocalDateTime
+import com.google.firebase.auth.FirebaseAuth
+import com.google.firebase.firestore.FirebaseFirestore
+import com.google.firebase.firestore.toObject
+import kotlinx.coroutines.CoroutineScope
+import kotlinx.coroutines.Dispatchers
 import kotlinx.coroutines.launch
+import kotlinx.coroutines.runBlocking
+import kotlinx.coroutines.tasks.await
+import java.time.Duration
 import java.time.LocalDateTime
+import java.time.LocalTime
+
 
 @Composable
-fun HomeScreen(sleepRecordRepository: SleepRecordRepository) {
+fun HomeScreen(
+    sleepRecordRepository: SleepRecordRepository,
+    firestoreDatabase: FirebaseFirestore,
+    firebaseAuth: FirebaseAuth,
+    userSettings: UserSettings
+) {
     var lastSleepRecord by remember { mutableStateOf(sleepRecordRepository.getLastSleepRecord()) }
     var lastSleepRecordEndTime by remember { mutableStateOf(lastSleepRecord.endTime) }
     var lastSleepRecordStartTime by remember { mutableStateOf(lastSleepRecord.startTime) }
@@ -47,9 +68,39 @@ fun HomeScreen(sleepRecordRepository: SleepRecordRepository) {
         usableStartButton = true
     } else usableStartButton = !(lastSleepRecordStartTime != "" && lastSleepRecordEndTime == "")
 
+    val targetSleepTime = LocalTime.parse(userSettings.targetSleepTime)
+    val targetWakeUpTime = LocalTime.parse(userSettings.wakeUpTime)
+    val targetSleepStartTime = countBedTime(targetWakeUpTime, targetSleepTime)
+    //convert LocalDateTime into duration from midnight
+    val targetSleepDuration =
+        Duration.between(targetSleepTime?.with(LocalTime.MIDNIGHT), targetSleepTime)
+
     val snackbarHostState = remember { SnackbarHostState() }
     // Create a coroutine scope
     val coroutineScope = rememberCoroutineScope()
+
+    val currentUser = firebaseAuth.currentUser
+    var userScore: Int
+    var userHighScore: Int
+
+    suspend fun getCurrentUserData(): UserHighScore? {
+        var currentUserScore: UserHighScore? = null
+        if (currentUser != null) {
+            try {
+                val userScoresCollection = firestoreDatabase.collection("userScores")
+                val documentSnapshot = userScoresCollection.document(currentUser.uid).get().await()
+
+                if (documentSnapshot.exists()) {
+                    currentUserScore = documentSnapshot.toObject<UserHighScore>()
+                } else {
+                    currentUserScore = UserHighScore(currentUser.uid, userSettings.userName, 0, 0)
+                }
+            } catch (e: Exception) {
+                Log.e("Error", "Error fetching user data: ${e.message}")
+            }
+        }
+        return currentUserScore
+    }
 
     Scaffold(snackbarHost = { SnackbarHost(hostState = snackbarHostState) }) {
         Surface(
@@ -66,7 +117,7 @@ fun HomeScreen(sleepRecordRepository: SleepRecordRepository) {
                     .fillMaxWidth()
             ) {
                 Text(
-                    text = "Budík",
+                    text = "Spánek",
                     color = MaterialTheme.colorScheme.primary,
                     style = MaterialTheme.typography.headlineLarge,
                     textAlign = TextAlign.Center
@@ -150,6 +201,7 @@ fun HomeScreen(sleepRecordRepository: SleepRecordRepository) {
                                                 ),
                                                 enabled = !usableStartButton,
                                                 onClick = {
+                                                    //update Room database
                                                     lastSleepRecord.endTime =
                                                         fromLocalDateTime(LocalDateTime.now())
                                                     lastSleepRecordEndTime = lastSleepRecord.endTime
@@ -164,6 +216,57 @@ fun HomeScreen(sleepRecordRepository: SleepRecordRepository) {
                                                             withDismissAction = true
                                                         )
                                                     }
+
+                                                    var currentUserHighScore :UserHighScore?
+                                                    //update Firestore leaderboard
+                                                    if (currentUser != null) {
+                                                        CoroutineScope(Dispatchers.IO).launch {
+                                                            runBlocking{currentUserHighScore =
+                                                               getCurrentUserData()}
+                                                            userScore =
+                                                                currentUserHighScore!!.score
+                                                            userHighScore =
+                                                                currentUserHighScore!!.highestScore
+
+                                                            if (followedSleepRoutine(
+                                                                    lastSleepRecord,
+                                                                    targetSleepDuration,
+                                                                    targetSleepStartTime,
+                                                                    targetWakeUpTime
+                                                                ) && targetSleepDuration >= Duration.ofHours(6)
+                                                            ) {
+                                                                userScore++
+                                                            }
+
+                                                            if (userScore > userHighScore) {
+                                                                userHighScore = userScore
+                                                            }
+                                                            val newUserScore = UserHighScore(
+                                                                currentUser.uid,
+                                                                userSettings.userName,
+                                                                userScore,
+                                                                userHighScore
+                                                            )
+
+                                                            firestoreDatabase.collection("userScores")
+                                                                .document(newUserScore.userId)
+                                                                .set(newUserScore)
+                                                                .addOnSuccessListener {
+                                                                    Log.d(
+                                                                        TAG,
+                                                                        "DocumentSnapshot successfully written!"
+                                                                    )
+                                                                }
+                                                                .addOnFailureListener { e ->
+                                                                    Log.w(
+                                                                        TAG,
+                                                                        "Error writing document",
+                                                                        e
+                                                                    )
+                                                                }
+                                                        }
+                                                    }
+
                                                 },
                                             ) {
                                                 Text(
@@ -174,6 +277,13 @@ fun HomeScreen(sleepRecordRepository: SleepRecordRepository) {
                                             }
                                         }
                                     }
+                                    Spacer(modifier = Modifier.height(15.dp))
+                                    Text(
+                                        text = "Pro záznam do žebříčku se musíš připojit k internetu.",
+                                        color = MaterialTheme.colorScheme.onSurfaceVariant,
+                                        style = MaterialTheme.typography.titleMedium,
+                                        textAlign = TextAlign.Center
+                                    )
                                 }
                             }
                         }
@@ -183,5 +293,3 @@ fun HomeScreen(sleepRecordRepository: SleepRecordRepository) {
         }
     }
 }
-
-

@@ -31,9 +31,9 @@ import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.text.style.TextAlign
 import androidx.compose.ui.unit.dp
-import com.example.schleep.components.getDayOfWeekAsString
-import com.example.schleep.components.getSleepRecordLenght
-import com.example.schleep.components.toLocalDateTime
+import com.example.schleep.utils.getDayOfWeekAsString
+import com.example.schleep.utils.getSleepRecordLenght
+import com.example.schleep.utils.toLocalDateTime
 import com.example.schleep.db.SleepRecordRepository
 import java.time.format.DateTimeFormatter
 

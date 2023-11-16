@@ -1,4 +1,4 @@
-package com.example.schleep.components
+package com.example.schleep.utils
 
 data class Article(
     val title: String,

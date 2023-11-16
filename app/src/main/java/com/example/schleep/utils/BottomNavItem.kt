@@ -1,10 +1,10 @@
-package com.example.schleep.components
+package com.example.schleep.utils
 
 import androidx.compose.material.icons.Icons
 import androidx.compose.material.icons.rounded.DateRange
-import androidx.compose.material.icons.rounded.Home
 import androidx.compose.material.icons.rounded.Info
 import androidx.compose.material.icons.rounded.List
+import androidx.compose.material.icons.rounded.PlayArrow
 import androidx.compose.material.icons.rounded.Settings
 import androidx.compose.ui.graphics.vector.ImageVector
 
@@ -14,15 +14,15 @@ sealed class BottomNavItem(
     val icon: ImageVector,
 ) {
     object Home : BottomNavItem(
-        name = "Budík",
+        name = "Spánek",
         route = "home",
-        icon = Icons.Rounded.Home
+        icon = Icons.Rounded.PlayArrow
     )
 
     object History : BottomNavItem(
         name = "Historie",
         route = "history",
-        icon = Icons.Rounded.List
+        icon = Icons.Rounded.DateRange
     )
 
     object Settings : BottomNavItem(
@@ -34,7 +34,7 @@ sealed class BottomNavItem(
     object Stats : BottomNavItem(
         name = "Statistiky",
         route = "stats",
-        icon = Icons.Rounded.DateRange
+        icon = Icons.Rounded.List
     )
 
     object Tips : BottomNavItem(

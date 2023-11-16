@@ -12,6 +12,8 @@ import androidx.compose.foundation.layout.height
 import androidx.compose.foundation.layout.padding
 import androidx.compose.foundation.layout.width
 import androidx.compose.foundation.rememberScrollState
+import androidx.compose.foundation.text.KeyboardActions
+import androidx.compose.foundation.text.KeyboardOptions
 import androidx.compose.foundation.verticalScroll
 import androidx.compose.material3.Button
 import androidx.compose.material3.Card
@@ -26,14 +28,18 @@ import androidx.compose.runtime.mutableStateOf
 import androidx.compose.runtime.remember
 import androidx.compose.runtime.setValue
 import androidx.compose.ui.Alignment
+import androidx.compose.ui.ExperimentalComposeUiApi
 import androidx.compose.ui.Modifier
+import androidx.compose.ui.platform.LocalSoftwareKeyboardController
+import androidx.compose.ui.text.input.ImeAction
 import androidx.compose.ui.text.style.TextAlign
 import androidx.compose.ui.unit.dp
-import com.example.schleep.components.countBedTime
 import com.example.schleep.db.UserSettingsRepository
+import com.example.schleep.utils.countBedTime
 import java.time.LocalTime
 import java.time.format.DateTimeFormatter
 
+@OptIn(ExperimentalComposeUiApi::class)
 @Composable
 fun SettingsScreen(userSettingsRepository: UserSettingsRepository) {
     val userSettings = userSettingsRepository.getUserSettings()
@@ -200,8 +206,8 @@ fun SettingsScreen(userSettingsRepository: UserSettingsRepository) {
                     }
                 }
             }
+            Spacer(modifier = Modifier.height(10.dp))
 
-            //TODO DODĚLAT
             Card(
                 modifier = Modifier
                     .background(
@@ -210,27 +216,57 @@ fun SettingsScreen(userSettingsRepository: UserSettingsRepository) {
                     )
                     .padding(all = 10.dp)
             ) {
-                //TODO SMAZAT
-                Button(onClick = {
+                Column(horizontalAlignment = Alignment.CenterHorizontally) {
+                    Text(
+                        text = "Změna uživatelského jména",
+                        color = MaterialTheme.colorScheme.primary,
+                        style = MaterialTheme.typography.titleLarge,
+                        modifier = Modifier.fillMaxWidth(),
+                        textAlign = TextAlign.Center
+                    )
+                    Spacer(modifier = Modifier.height(10.dp))
+                    Text(
+                        text = "Jak chcete být zobrazován v žebříčku?",
+                        color = MaterialTheme.colorScheme.onSurfaceVariant,
+                        style = MaterialTheme.typography.titleMedium,
+                        textAlign = TextAlign.Center
+                    )
+                    Spacer(modifier = Modifier.height(5.dp))
 
-                    userSettings.firstLaunch = true
-                    userSettingsRepository.updateUserSettings(userSettings)
+                    val keyboardController = LocalSoftwareKeyboardController.current
+                    var userName by remember { mutableStateOf(userSettings.userName) }
+                    OutlinedTextField(
+                        modifier = Modifier
+                            .width(280.dp)
+                            .padding(horizontal = 15.dp),
+                        value = userName,
+                        singleLine = true,
+                        keyboardOptions = KeyboardOptions(imeAction = ImeAction.Done),
+                        keyboardActions = KeyboardActions(
+                            onDone = {keyboardController?.hide()}),
+                        onValueChange = { userName = it },
+                        placeholder = { Text("Tvé jméno") },
+                        label = { Text(text = "Jak se jmenuješ?")}
+                    )
 
-                }) {
-                    Text(text = "firstLaunch true")
+                    Box(
+                        contentAlignment = Alignment.Center,
+                        modifier = Modifier
+                            .fillMaxWidth()
+                            .padding(10.dp)
+                    ) {
+                        Button(modifier = Modifier.background(
+                            color = MaterialTheme.colorScheme.primary,
+                            shape = MaterialTheme.shapes.large
+                        ), onClick = {
+                            userSettings.userName = userName
+                            userSettingsRepository.updateUserSettings(userSettings)
+
+                        }) {
+                            Text(text = "Potvrdit změnu")
+                        }
+                    }
                 }
-                //TODO SMAZAT
-
-                var userName by remember { mutableStateOf(userSettings.userName) }
-                OutlinedTextField(
-                    modifier = Modifier
-                        .width(280.dp)
-                        .padding(horizontal = 15.dp),
-                    value = userName,
-                    onValueChange = { userName = it },
-                    placeholder = { Text("Tvé jméno") },
-                    label = { Text(text = "Jak se jmenuješ?") }
-                )//TODO DODĚLAT ULOŽENÍ DO DB -> NAPŘ TLAČÍTKO
             }
         }
     }

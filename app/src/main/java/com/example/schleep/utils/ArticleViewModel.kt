@@ -1,11 +1,10 @@
-package com.example.schleep.components
+package com.example.schleep.utils
 
 import androidx.compose.runtime.getValue
 import androidx.compose.runtime.mutableStateOf
 import androidx.compose.runtime.setValue
 
-class ArticleViewModel(articles: List<Article>) {
-    var articles: List<Article> = articles
+class ArticleViewModel(var articles: List<Article>) {
     var selectedArticle: Article? by mutableStateOf(articles[0])
 
     fun selectArticle(article: Article) {

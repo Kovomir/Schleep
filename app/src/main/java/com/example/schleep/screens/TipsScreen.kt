@@ -41,11 +41,10 @@ import androidx.compose.ui.text.style.TextAlign
 import androidx.compose.ui.unit.DpOffset
 import androidx.compose.ui.unit.dp
 import com.example.schleep.R
-import com.example.schleep.components.Article
-import com.example.schleep.components.ArticleViewModel
+import com.example.schleep.utils.Article
+import com.example.schleep.utils.ArticleViewModel
 import kotlinx.coroutines.launch
 
-/*  TODO MOVE TO VIEWMODEL OR REPOSITORY... */
 val article1 = Article(
     title = "Ideální prostředí pro spánek",
     text = "Světlo, teplota a hluk jsou zásadní faktory prostředí, které mají kritický vliv na váš noční odpočinek. Ideální prostředí pro spánek by mělo být temné, chladné a tiché. Dle expertů je nejoptimálnější teplota vzduchu v rozmezí od 15,5 do 19,5 °C. " +
@@ -60,7 +59,7 @@ val article2 = Article(
     text = "Pravidelná spánková rutina je klíčem k dosažení zdravého a obnovujícího spánku. Udržování konzistentních časů spaní a budění pomáhá stabilizovat biologické hodiny těla, což vede k optimálním spánkovým cyklům a stabilním hormonálním hladinám. To zajišťuje, že se probudíme v" +
             " ideální fázi spánku, cítíme se svěží a máme lepší kognitivní funkce. Tím nejenže podporujeme kvalitní spánek, ale také usnadňujeme udržování dostatečné délky spánku." +
             " Pravidelná spánková rutina by měla být prioritou pro zachování zdraví a pohody.",
-    imageId = R.drawable.schedule
+    imageId = R.drawable.alarm_clock
 )
 
 val article3 = Article(
@@ -81,7 +80,7 @@ val article4 = Article(
             "Děti (1-2 roky) by měly spát 11-14 hodin denně, zatímco batolata (3-4 roky) by měla spát 10-13 hodin. Pro školní věk (5-12 let) se doporučuje 9-11 hodin spánku denně, což pomáhá vývoji a učení. U dospívajících (13-18 let) je optimální délka spánku 8-10 hodin, což podporuje fyzický a duševní rozvoj v tomto důležitém období. \n" +
             "\n" +
             "Důležité je si uvědomit, že potřeba spánu je individuální. V průběhu života se navíc mohou objevovat různé faktory, které mohou ovlivnit kvalitu a délku spánku. To může zahrnovat změny ve spánkových vzorcích, zvýšenou potřebu nočních návštěv koupelny či spánkové apnoe. Je proto důležité naslouchat svému tělu a reagovat na jeho signály. Pokud osoba trpí problémy se spánkem, měla by se poradit se svým lékařem.",
-    imageId = R.drawable.alarm_clock
+    imageId = R.drawable.clock_drawing
 )
 
 val article5 = Article(
@@ -95,7 +94,6 @@ val article5 = Article(
 val articles = listOf(article1, article2, article3, article4, article5)
 
 val articlesViewModel = ArticleViewModel(articles)
-/*TODO*/
 
 @Composable
 fun TipsScreen() {

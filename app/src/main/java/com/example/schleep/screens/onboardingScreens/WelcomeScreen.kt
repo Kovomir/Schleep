@@ -40,10 +40,12 @@ import androidx.compose.ui.text.style.TextAlign
 import androidx.compose.ui.unit.dp
 import androidx.navigation.NavController
 import com.example.schleep.R
-import com.example.schleep.components.FIRST_SETUP_SCREEN_ROUTE
-import com.example.schleep.components.WELCOME_SCREEN_ROUTE
+import com.example.schleep.utils.FIRST_SETUP_SCREEN_ROUTE
+import com.example.schleep.utils.WELCOME_SCREEN_ROUTE
 import com.example.schleep.db.UserSettingsRepository
 import kotlin.text.Typography.nbsp
+
+
 
 @OptIn(ExperimentalComposeUiApi::class)
 @Composable

@@ -2,6 +2,7 @@ package com.example.schleep.screens
 
 import androidx.compose.foundation.background
 import androidx.compose.foundation.layout.Arrangement
+import androidx.compose.foundation.layout.Box
 import androidx.compose.foundation.layout.Column
 import androidx.compose.foundation.layout.Row
 import androidx.compose.foundation.layout.Spacer
@@ -11,6 +12,7 @@ import androidx.compose.foundation.layout.height
 import androidx.compose.foundation.layout.padding
 import androidx.compose.foundation.rememberScrollState
 import androidx.compose.foundation.verticalScroll
+import androidx.compose.material3.Button
 import androidx.compose.material3.Card
 import androidx.compose.material3.MaterialTheme
 import androidx.compose.material3.Surface
@@ -20,13 +22,16 @@ import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.text.style.TextAlign
 import androidx.compose.ui.unit.dp
-import com.example.schleep.components.countBedTime
-import com.example.schleep.components.getSleepLength
-import com.example.schleep.components.getSleepRecordsAfterDate
-import com.example.schleep.components.toLocalDateTime
+import androidx.navigation.NavController
 import com.example.schleep.db.SleepRecordRepository
 import com.example.schleep.db.UserSettingsRepository
-import com.google.firebase.firestore.FirebaseFirestore
+import com.example.schleep.utils.LEADERBOARDS_ROUTE
+import com.example.schleep.utils.SIGNIN_SCREEN_ROUTE
+import com.example.schleep.utils.countBedTime
+import com.example.schleep.utils.followedSleepRoutine
+import com.example.schleep.utils.getSleepLength
+import com.example.schleep.utils.getSleepRecordsAfterDate
+import com.google.firebase.auth.FirebaseAuth
 import java.time.Duration
 import java.time.LocalDateTime
 import java.time.LocalTime
@@ -35,9 +40,9 @@ import java.time.LocalTime
 fun StatsScreen(
     sleepRecordRepository: SleepRecordRepository,
     userSettingsRepository: UserSettingsRepository,
-    firestoreDatabase: FirebaseFirestore
+    navController: NavController,
+    firebaseAuth: FirebaseAuth
 ) {
-    /*TODO MOVE TO REPOSITORY - data layer should contain bussines logic, not UI layer!*/
     val sleepRecords = sleepRecordRepository.getAllCompleteSleepRecords()
     val userSettings = userSettingsRepository.getUserSettings()
     val targetSleepTime = LocalTime.parse(userSettings.targetSleepTime)
@@ -80,7 +85,9 @@ fun StatsScreen(
 
     if (lastWeekSleepRecords.isNotEmpty()) {
         for (sleepRecord in lastWeekSleepRecords) {
+
             val sleepDuration = getSleepLength(sleepRecord)
+
             if (sleepDuration < targetSleepDuration) {
                 sleepDebtPastWeek += (targetSleepDuration.toMinutes()
                     .toInt() - sleepDuration.toMinutes().toInt())
@@ -88,24 +95,13 @@ fun StatsScreen(
                 extraSleepPastWeek += (sleepDuration.toMinutes()
                     .toInt() - targetSleepDuration.toMinutes().toInt())
             }
-
-            val startTime = toLocalDateTime(sleepRecord.startTime)!!.toLocalTime()
-            val endTime = toLocalDateTime(sleepRecord.endTime)!!.toLocalTime()
-
-            //add 15 minute tolerance from both sides
-            val startTimeWithinInterval =
-                (startTime >= targetSleepStartTime.minusMinutes(15)
-                        && startTime <= targetSleepStartTime.plusMinutes(15))
-            val endTimeWithinInterval =
-                (endTime >= targetWakeUpTime.minusMinutes(15)
-                        && endTime <= targetWakeUpTime.plusMinutes(15))
-
-            //add 30 minute offset because of corner cases with minimal startTime and maximal endTime
-            val aboveMin = sleepDuration.compareTo(targetSleepDuration.minusMinutes(30)) != -1
-            val underMax = sleepDuration.compareTo(targetSleepDuration.plusMinutes(30)) < 1
-            val sleepDurationWithinInterval = aboveMin && underMax
-
-            if (sleepDurationWithinInterval && startTimeWithinInterval && endTimeWithinInterval) {
+            if (followedSleepRoutine(
+                    sleepRecord,
+                    targetSleepDuration,
+                    targetSleepStartTime,
+                    targetWakeUpTime
+                )
+            ) {
                 sleepRecordsFollowingSleepRoutine++
             }
         }
@@ -124,7 +120,6 @@ fun StatsScreen(
         followingSleepRoutineString = String.format("%.1f", followingSleepRoutinePercentage) + " %"
     }
 
-    //TODO END MOVE TO REPOSITORY
     val scrollState = rememberScrollState()
 
     Surface(
@@ -149,7 +144,8 @@ fun StatsScreen(
             Column(
                 modifier = Modifier
                     .fillMaxSize()
-                    .verticalScroll(scrollState)
+                    .verticalScroll(scrollState),
+                horizontalAlignment = Alignment.CenterHorizontally
             ) {
                 Card(
                     modifier = Modifier
@@ -199,8 +195,8 @@ fun StatsScreen(
                         textAlign = TextAlign.Center
                     )
                 }
-
                 Spacer(modifier = Modifier.height(10.dp))
+
                 Card(
                     modifier = Modifier
                         .background(
@@ -228,15 +224,43 @@ fun StatsScreen(
                             modifier = Modifier.padding(horizontal = 10.dp),
                             textAlign = TextAlign.Center
                         )
-                        Text(
-                            text = "($sleepRecordsFollowingSleepRoutine z ${lastWeekSleepRecords.size})",
-                            color = MaterialTheme.colorScheme.onSurfaceVariant,
-                            style = MaterialTheme.typography.titleSmall,
-
-                            textAlign = TextAlign.Center
-                        )
+                        if(lastWeekSleepRecords.isNotEmpty()){
+                            Text(
+                                text = "($sleepRecordsFollowingSleepRoutine z ${lastWeekSleepRecords.size})",
+                                color = MaterialTheme.colorScheme.onSurfaceVariant,
+                                style = MaterialTheme.typography.titleSmall,
+                                textAlign = TextAlign.Center
+                            )
+                        }
                     }
+                    Spacer(modifier = Modifier.height(5.dp))
+                    Box(
+                        contentAlignment = Alignment.Center,
+                        modifier = Modifier.fillMaxWidth()
+                    ) {
+                        Button(
+                            modifier = Modifier
+                                .padding(10.dp)
+                                .background(
+                                    color = MaterialTheme.colorScheme.primary,
+                                    shape = MaterialTheme.shapes.large
+                                ),
+                            onClick = {
+                                if (firebaseAuth.currentUser == null) {
+                                    navController.navigate(route = SIGNIN_SCREEN_ROUTE)
+                                } else {
+                                    navController.navigate(route = LEADERBOARDS_ROUTE)
+                                }
 
+                            }
+                        ) {
+                            Text(
+                                text = "Žebříček nejlepších",
+                                color = MaterialTheme.colorScheme.onPrimary,
+                                style = MaterialTheme.typography.titleLarge
+                            )
+                        }
+                    }
                 }
 
                 Spacer(modifier = Modifier.height(10.dp))
