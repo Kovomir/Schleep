@@ -12,7 +12,9 @@ class UserSettingsRepository(private val userSettingsDao: UserSettingsDao) {
             userSettings = UserSettings(
                 id = 1,
                 wakeUpTime = LocalTime.of(8, 0).toString(),
-                targetSleepTime = LocalTime.of(8, 0).toString()
+                targetSleepTime = LocalTime.of(8, 0).toString(),
+                userName = "",
+                firstLaunch = true
             )
             userSettingsDao.insertUserSettings(userSettings)
         }

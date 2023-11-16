@@ -2,4 +2,12 @@
 <resources>
 
     <style name="Theme.Schleep" parent="android:Theme.Material.Light.NoActionBar" />
+
+    <style name="Theme.SchleepSplashScreen" parent="Theme.SplashScreen">
+        <item name="windowSplashScreenBackground">@color/black</item>
+        <item name="windowSplashScreenAnimatedIcon">@drawable/logo</item>
+        <item name="windowSplashScreenAnimationDuration">500</item>
+        <item name="android:text" color="white">Schleep</item>
+        <item name="postSplashScreenTheme">@style/Theme.Schleep</item>
+    </style>
 </resources>
