@@ -9,11 +9,11 @@ plugins {
 }
 
 android {
-    namespace 'com.example.schleep'
+    namespace 'com.kovomir.schleep'
     compileSdk 34
 
     defaultConfig {
-        applicationId "com.example.schleep"
+        applicationId "com.kovomir.schleep"
         minSdk 29
         targetSdk 34
         versionCode 1
