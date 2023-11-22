@@ -278,12 +278,22 @@ fun HomeScreen(
                                         }
                                     }
                                     Spacer(modifier = Modifier.height(15.dp))
-                                    Text(
-                                        text = "Pro záznam do žebříčku se musíš připojit k internetu.",
-                                        color = MaterialTheme.colorScheme.onSurfaceVariant,
-                                        style = MaterialTheme.typography.titleMedium,
-                                        textAlign = TextAlign.Center
-                                    )
+                                    if(currentUser != null){
+                                        Text(
+                                            text = "Pro navýšení skóre se musíš připojit k internetu a tvá cílená doba spánku musí být alespoň 6 hodin.",
+                                            color = MaterialTheme.colorScheme.onSurfaceVariant,
+                                            style = MaterialTheme.typography.titleMedium,
+                                            textAlign = TextAlign.Center
+                                        )
+                                    } else {
+                                        Text(
+                                            text = "Pro záznam do žebříčku nejlepších se do něj musíš nejprve přihlásit na záložce statistiky.",
+                                            color = MaterialTheme.colorScheme.onSurfaceVariant,
+                                            style = MaterialTheme.typography.titleMedium,
+                                            textAlign = TextAlign.Center
+                                        )
+                                    }
+
                                 }
                             }
                         }
