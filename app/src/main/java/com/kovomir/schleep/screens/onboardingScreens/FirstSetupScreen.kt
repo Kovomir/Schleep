@@ -218,48 +218,6 @@ fun FirstSetupScreen(userSettingsRepository: UserSettingsRepository, navControll
                         )
                     }
 
-                    /*Button(
-                        modifier = Modifier
-                            .padding(10.dp),
-                        enabled = userName.isNotBlank(),
-                        onClick = {
-                            userSettings.userName = userName
-                            userSettingsRepository.updateUserSettings(
-                                userSettings
-                            )
-
-                            navController.navigate(route = FIRST_SETUP_SCREEN_ROUTE) {
-                                popUpTo(route = WELCOME_SCREEN_ROUTE) {
-                                    saveState = true
-                                }
-                                launchSingleTop = true
-                                restoreState = true
-                            }
-                        }
-                    ) {
-                        Text(
-                            text = "Pokračovat",
-                            color = MaterialTheme.colorScheme.onPrimary,
-                            style = MaterialTheme.typography.headlineLarge
-                        )
-                    }*/
-
-                    /*Text(
-                        text = "Schleep ti pomůže sledovat a" + Typography.nbsp + "zlepšit tvé spánkové návyky.",
-                        color = MaterialTheme.colorScheme.onSurfaceVariant,
-                        style = MaterialTheme.typography.titleLarge,
-                        textAlign = TextAlign.Center,
-                        modifier = Modifier.padding(3.dp)
-                    )
-                    Text(
-                        text = "Každý den, než půjdeš spát, spusť měření spánku a ráno, až vstaneš," +
-                                " ho ukonči. \n\nAplikace tě nyní provede krátkým procesem prvotního nastavení.",
-                        color = MaterialTheme.colorScheme.onSurfaceVariant,
-                        style = MaterialTheme.typography.bodyLarge,
-                        textAlign = TextAlign.Justify,
-                        modifier = Modifier.padding(20.dp)
-                    )*/
-
                 }
             }
         }
