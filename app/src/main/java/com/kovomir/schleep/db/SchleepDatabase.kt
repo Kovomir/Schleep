@@ -6,7 +6,7 @@ import androidx.room.Room
 import androidx.room.RoomDatabase
 import androidx.room.TypeConverters
 
-@Database(entities = [SleepRecord::class, UserSettings::class], version = 4)
+@Database(entities = [SleepRecord::class, UserSettings::class], version = 5)
 @TypeConverters(LocalDateTimeConverter::class)
 abstract class SchleepDatabase : RoomDatabase() {
 
