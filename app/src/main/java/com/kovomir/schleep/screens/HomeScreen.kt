@@ -283,14 +283,14 @@ fun HomeScreen(
                                             text = "Pro navýšení skóre se musíš připojit k internetu a tvá cílená doba spánku musí být alespoň 6 hodin.",
                                             color = MaterialTheme.colorScheme.onSurfaceVariant,
                                             style = MaterialTheme.typography.titleMedium,
-                                            textAlign = TextAlign.Center
+                                            textAlign = TextAlign.Justify
                                         )
                                     } else {
                                         Text(
                                             text = "Pro záznam do žebříčku nejlepších se do něj musíš nejprve přihlásit na záložce statistiky.",
                                             color = MaterialTheme.colorScheme.onSurfaceVariant,
                                             style = MaterialTheme.typography.titleMedium,
-                                            textAlign = TextAlign.Center
+                                            textAlign = TextAlign.Justify
                                         )
                                     }
 
