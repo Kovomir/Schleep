@@ -37,13 +37,14 @@ import androidx.compose.ui.res.painterResource
 import androidx.compose.ui.text.style.TextAlign
 import androidx.compose.ui.unit.dp
 import androidx.navigation.NavController
-import com.kovomir.schleep.R
-import com.kovomir.schleep.utils.LEADERBOARDS_ROUTE
 import com.google.android.gms.auth.api.identity.BeginSignInRequest
 import com.google.android.gms.auth.api.identity.SignInClient
-import com.google.firebase.auth.FirebaseAuth
+import com.google.firebase.Firebase
 import com.google.firebase.auth.FirebaseUser
 import com.google.firebase.auth.GoogleAuthProvider
+import com.google.firebase.auth.auth
+import com.kovomir.schleep.R
+import com.kovomir.schleep.utils.LEADERBOARDS_ROUTE
 import kotlinx.coroutines.CancellationException
 import kotlinx.coroutines.CoroutineScope
 import kotlinx.coroutines.Dispatchers
@@ -52,11 +53,11 @@ import kotlinx.coroutines.tasks.await
 
 @Composable
 fun SignInScreen(
-    firebaseAuth: FirebaseAuth,
     appContext: Context,
     navController: NavController,
     oneTapClient: SignInClient
 ) {
+    val firebaseAuth = Firebase.auth
     var signedInUser by remember {
         mutableStateOf(firebaseAuth.currentUser)
     }

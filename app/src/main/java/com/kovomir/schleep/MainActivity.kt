@@ -12,9 +12,6 @@ import com.kovomir.compose.SchleepTheme
 import com.kovomir.schleep.db.SchleepDatabase
 import com.kovomir.schleep.db.SleepRecordRepository
 import com.kovomir.schleep.db.UserSettingsRepository
-import com.google.firebase.Firebase
-import com.google.firebase.auth.auth
-import com.google.firebase.firestore.firestore
 
 
 class MainActivity : ComponentActivity() {
@@ -26,8 +23,6 @@ class MainActivity : ComponentActivity() {
 
         val userSettingsRepository = UserSettingsRepository(db.userSettingsDao)
         val sleepRecordRepository = SleepRecordRepository(db.sleepRecordDao)
-        val firebaseAuth by lazy {Firebase.auth}
-        val firestoreDatabase = Firebase.firestore
 
         setContent {
             SchleepTheme {
@@ -38,8 +33,6 @@ class MainActivity : ComponentActivity() {
                     MainScreen(
                         userSettingsRepository = userSettingsRepository,
                         sleepRecordRepository = sleepRecordRepository,
-                        firestoreDatabase = firestoreDatabase,
-                        firebaseAuth = firebaseAuth,
                         appContext = applicationContext
                     )
                 }

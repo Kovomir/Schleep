@@ -32,15 +32,16 @@ import androidx.navigation.compose.NavHost
 import androidx.navigation.compose.composable
 import androidx.navigation.compose.currentBackStackEntryAsState
 import androidx.navigation.compose.rememberNavController
+import com.google.android.gms.auth.api.identity.Identity
 import com.kovomir.schleep.db.SleepRecordRepository
 import com.kovomir.schleep.db.UserSettingsRepository
 import com.kovomir.schleep.screens.HistoryScreen
 import com.kovomir.schleep.screens.HomeScreen
 import com.kovomir.schleep.screens.SettingsScreen
-import com.kovomir.schleep.screens.firebaseScreens.SignInScreen
 import com.kovomir.schleep.screens.StatsScreen
 import com.kovomir.schleep.screens.TipsScreen
 import com.kovomir.schleep.screens.firebaseScreens.LeaderboardScreen
+import com.kovomir.schleep.screens.firebaseScreens.SignInScreen
 import com.kovomir.schleep.screens.onboardingScreens.FirstSetupScreen
 import com.kovomir.schleep.screens.onboardingScreens.WelcomeScreen
 import com.kovomir.schleep.utils.BottomNavItem
@@ -48,16 +49,11 @@ import com.kovomir.schleep.utils.FIRST_SETUP_SCREEN_ROUTE
 import com.kovomir.schleep.utils.LEADERBOARDS_ROUTE
 import com.kovomir.schleep.utils.SIGNIN_SCREEN_ROUTE
 import com.kovomir.schleep.utils.WELCOME_SCREEN_ROUTE
-import com.google.android.gms.auth.api.identity.Identity
-import com.google.firebase.auth.FirebaseAuth
-import com.google.firebase.firestore.FirebaseFirestore
 
 @Composable
 fun MainScreen(
     userSettingsRepository: UserSettingsRepository,
     sleepRecordRepository: SleepRecordRepository,
-    firestoreDatabase: FirebaseFirestore,
-    firebaseAuth: FirebaseAuth,
     appContext: Context
 ) {
     val navController = rememberNavController()
@@ -173,8 +169,6 @@ fun MainScreen(
                 composable(route = BottomNavItem.Home.route) {
                     HomeScreen(
                         sleepRecordRepository = sleepRecordRepository,
-                        firestoreDatabase = firestoreDatabase,
-                        firebaseAuth = firebaseAuth,
                         userSettings = userSettings
                     )
                 }
@@ -189,7 +183,7 @@ fun MainScreen(
                         sleepRecordRepository = sleepRecordRepository,
                         userSettingsRepository = userSettingsRepository,
                         navController = navController,
-                        firebaseAuth = firebaseAuth
+                        appContext = appContext
                     )
                 }
                 composable(route = BottomNavItem.Tips.route) {
@@ -211,7 +205,6 @@ fun MainScreen(
                 }
                 composable(route = SIGNIN_SCREEN_ROUTE) {
                     SignInScreen(
-                        firebaseAuth = firebaseAuth,
                         appContext = appContext,
                         navController = navController,
                         oneTapClient = oneTapClient
@@ -219,8 +212,6 @@ fun MainScreen(
                 }
                 composable(route = LEADERBOARDS_ROUTE) {
                     LeaderboardScreen(
-                        firestoreDatabase = firestoreDatabase,
-                        firebaseAuth = firebaseAuth,
                         oneTapClient = oneTapClient,
                         navController = navController,
                         userSettingsRepository = userSettingsRepository

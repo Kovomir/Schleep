@@ -19,6 +19,9 @@ import androidx.compose.material3.Button
 import androidx.compose.material3.Card
 import androidx.compose.material3.MaterialTheme
 import androidx.compose.material3.OutlinedTextField
+import androidx.compose.material3.Scaffold
+import androidx.compose.material3.SnackbarHost
+import androidx.compose.material3.SnackbarHostState
 import androidx.compose.material3.Surface
 import androidx.compose.material3.Text
 import androidx.compose.runtime.Composable
@@ -26,6 +29,7 @@ import androidx.compose.runtime.derivedStateOf
 import androidx.compose.runtime.getValue
 import androidx.compose.runtime.mutableStateOf
 import androidx.compose.runtime.remember
+import androidx.compose.runtime.rememberCoroutineScope
 import androidx.compose.runtime.setValue
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.ExperimentalComposeUiApi
@@ -36,6 +40,7 @@ import androidx.compose.ui.text.style.TextAlign
 import androidx.compose.ui.unit.dp
 import com.kovomir.schleep.db.UserSettingsRepository
 import com.kovomir.schleep.utils.countBedTime
+import kotlinx.coroutines.launch
 import java.time.LocalTime
 import java.time.format.DateTimeFormatter
 
@@ -72,198 +77,209 @@ fun SettingsScreen(userSettingsRepository: UserSettingsRepository) {
     }
 
     val scrollState = rememberScrollState()
+    val snackbarHostState = remember { SnackbarHostState() }
+    val coroutineScope = rememberCoroutineScope()
 
-    Surface(
-        modifier = Modifier
-            .fillMaxSize()
-            .background(MaterialTheme.colorScheme.background)
-    ) {
-        Column(
-            horizontalAlignment = Alignment.CenterHorizontally,
+    Scaffold(snackbarHost = { SnackbarHost(hostState = snackbarHostState) }) {
+        Surface(
             modifier = Modifier
-                .padding(all = 5.dp)
-                .background(color = MaterialTheme.colorScheme.background)
-                .fillMaxWidth()
-                .verticalScroll(scrollState)
+                .fillMaxSize()
+                .padding(it)
+                .background(MaterialTheme.colorScheme.background)
         ) {
-            Text(
-                text = "Nastavení",
-                color = MaterialTheme.colorScheme.primary,
-                style = MaterialTheme.typography.headlineLarge,
-                textAlign = TextAlign.Center,
-                modifier = Modifier.padding(bottom = 10.dp)
-            )
-
-            Card(
+            Column(
+                horizontalAlignment = Alignment.CenterHorizontally,
                 modifier = Modifier
-                    .background(
-                        color = MaterialTheme.colorScheme.surfaceVariant,
-                        shape = MaterialTheme.shapes.large
-                    )
-                    .padding(all = 10.dp)
+                    .padding(all = 5.dp)
+                    .background(color = MaterialTheme.colorScheme.background)
+                    .fillMaxWidth()
+                    .verticalScroll(scrollState)
             ) {
                 Text(
-                    text = "Nastavení cílené doby spánku",
+                    text = "Nastavení",
                     color = MaterialTheme.colorScheme.primary,
-                    style = MaterialTheme.typography.titleLarge,
-                    modifier = Modifier.fillMaxWidth(),
-                    textAlign = TextAlign.Center
+                    style = MaterialTheme.typography.headlineLarge,
+                    textAlign = TextAlign.Center,
+                    modifier = Modifier.padding(bottom = 10.dp)
                 )
-                Box(
+
+                Card(
                     modifier = Modifier
+                        .background(
+                            color = MaterialTheme.colorScheme.surfaceVariant,
+                            shape = MaterialTheme.shapes.large
+                        )
                         .padding(all = 10.dp)
-                        .fillMaxWidth(),
-                    contentAlignment = Alignment.Center
                 ) {
-                    Column(horizontalAlignment = Alignment.CenterHorizontally) {
-                        Text(
-                            text = "Cílená doba spánku",
-                            color = MaterialTheme.colorScheme.onSurfaceVariant,
-                            style = MaterialTheme.typography.titleMedium,
-                            textAlign = TextAlign.Center
-                        )
-                        Spacer(modifier = Modifier.height(5.dp))
-                        TimePickerScreen(
-                            pickedTime = targetSleepTime,
-                            onTimePicked = {
-                                targetSleepTime = it
-                                userSettings.targetSleepTime = targetSleepTime.toString()
-                                userSettingsRepository.updateUserSettings(userSettings)
-                                bedTime = countBedTime(wakeUpTime, targetSleepTime)
-                            }
-                        )
-                    }
-                }
-            }
-            Spacer(modifier = Modifier.height(10.dp))
-
-            Card(
-                modifier = Modifier
-                    .background(
-                        color = MaterialTheme.colorScheme.surfaceVariant,
-                        shape = MaterialTheme.shapes.large
-                    )
-                    .padding(all = 10.dp)
-            ) {
-                Text(
-                    text = "Nastavení spánkové rutiny",
-                    color = MaterialTheme.colorScheme.primary,
-                    style = MaterialTheme.typography.titleLarge,
-                    modifier = Modifier.fillMaxWidth(),
-                    textAlign = TextAlign.Center
-                )
-                Column(
-                    modifier = Modifier
-                        .padding(all = 10.dp)
-                        .fillMaxWidth(),
-                    horizontalAlignment = Alignment.CenterHorizontally,
-                    verticalArrangement = Arrangement.Center
-                ) {
-                    Column(horizontalAlignment = Alignment.CenterHorizontally) {
-                        Text(
-                            text = "V kolik hodin chcete vstávat?",
-                            color = MaterialTheme.colorScheme.onSurfaceVariant,
-                            style = MaterialTheme.typography.titleMedium,
-                            textAlign = TextAlign.Center
-                        )
-                        Spacer(modifier = Modifier.height(5.dp))
-                        TimePickerScreen(
-                            pickedTime = wakeUpTime,
-                            onTimePicked = {
-                                wakeUpTime = it
-                                userSettings.wakeUpTime = wakeUpTime.toString()
-                                userSettingsRepository.updateUserSettings(userSettings)
-                                bedTime = countBedTime(wakeUpTime, targetSleepTime)
-                            }
-                        )
-                    }
-                    Spacer(modifier = Modifier.width(30.dp))
-                    Row(
-                        modifier = Modifier
-                            .fillMaxSize()
-                            .background(
-                                color = MaterialTheme.colorScheme.tertiary,
-                                shape = MaterialTheme.shapes.medium
-                            )
-                            .padding(all = 10.dp),
-                        horizontalArrangement = Arrangement.Center,
-                        verticalAlignment = Alignment.CenterVertically
-                    ) {
-
-                        Text(
-                            text = "Spát půjdete v: \n${formattedBedTime}",
-                            color = MaterialTheme.colorScheme.onTertiary,
-                            style = MaterialTheme.typography.bodyLarge,
-                            textAlign = TextAlign.Center
-                        )
-                        Spacer(modifier = Modifier.width(40.dp))
-                        Text(
-                            text = "Vstanete v: \n${formattedWakeUpTime}",
-                            color = MaterialTheme.colorScheme.onTertiary,
-                            style = MaterialTheme.typography.bodyLarge,
-                            textAlign = TextAlign.Center
-                        )
-                    }
-                }
-            }
-            Spacer(modifier = Modifier.height(10.dp))
-
-            Card(
-                modifier = Modifier
-                    .background(
-                        color = MaterialTheme.colorScheme.surfaceVariant,
-                        shape = MaterialTheme.shapes.large
-                    )
-                    .padding(all = 10.dp)
-            ) {
-                Column(horizontalAlignment = Alignment.CenterHorizontally) {
                     Text(
-                        text = "Změna uživatelského jména",
+                        text = "Nastavení cílené doby spánku",
                         color = MaterialTheme.colorScheme.primary,
                         style = MaterialTheme.typography.titleLarge,
                         modifier = Modifier.fillMaxWidth(),
                         textAlign = TextAlign.Center
                     )
-                    Spacer(modifier = Modifier.height(10.dp))
+                    Box(
+                        modifier = Modifier
+                            .padding(all = 10.dp)
+                            .fillMaxWidth(),
+                        contentAlignment = Alignment.Center
+                    ) {
+                        Column(horizontalAlignment = Alignment.CenterHorizontally) {
+                            Text(
+                                text = "Cílená doba spánku",
+                                color = MaterialTheme.colorScheme.onSurfaceVariant,
+                                style = MaterialTheme.typography.titleMedium,
+                                textAlign = TextAlign.Center
+                            )
+                            Spacer(modifier = Modifier.height(5.dp))
+                            TimePickerScreen(
+                                pickedTime = targetSleepTime,
+                                onTimePicked = {
+                                    targetSleepTime = it
+                                    userSettings.targetSleepTime = targetSleepTime.toString()
+                                    userSettingsRepository.updateUserSettings(userSettings)
+                                    bedTime = countBedTime(wakeUpTime, targetSleepTime)
+                                }
+                            )
+                        }
+                    }
+                }
+                Spacer(modifier = Modifier.height(10.dp))
+
+                Card(
+                    modifier = Modifier
+                        .background(
+                            color = MaterialTheme.colorScheme.surfaceVariant,
+                            shape = MaterialTheme.shapes.large
+                        )
+                        .padding(all = 10.dp)
+                ) {
                     Text(
-                        text = "Jak chcete být zobrazován v žebříčku?",
-                        color = MaterialTheme.colorScheme.onSurfaceVariant,
-                        style = MaterialTheme.typography.titleMedium,
+                        text = "Nastavení spánkové rutiny",
+                        color = MaterialTheme.colorScheme.primary,
+                        style = MaterialTheme.typography.titleLarge,
+                        modifier = Modifier.fillMaxWidth(),
                         textAlign = TextAlign.Center
                     )
-                    Spacer(modifier = Modifier.height(5.dp))
-
-                    val keyboardController = LocalSoftwareKeyboardController.current
-                    var userName by remember { mutableStateOf(userSettings.userName) }
-                    OutlinedTextField(
+                    Column(
                         modifier = Modifier
-                            .width(280.dp)
-                            .padding(horizontal = 15.dp),
-                        value = userName,
-                        singleLine = true,
-                        keyboardOptions = KeyboardOptions(imeAction = ImeAction.Done),
-                        keyboardActions = KeyboardActions(
-                            onDone = {keyboardController?.hide()}),
-                        onValueChange = { userName = it },
-                        placeholder = { Text("Tvé jméno") },
-                        label = { Text(text = "Jak se jmenuješ?")}
-                    )
-
-                    Box(
-                        contentAlignment = Alignment.Center,
-                        modifier = Modifier
-                            .fillMaxWidth()
-                            .padding(10.dp)
+                            .padding(all = 10.dp)
+                            .fillMaxWidth(),
+                        horizontalAlignment = Alignment.CenterHorizontally,
+                        verticalArrangement = Arrangement.Center
                     ) {
-                        Button(modifier = Modifier.background(
-                            color = MaterialTheme.colorScheme.primary,
-                            shape = MaterialTheme.shapes.large
-                        ), onClick = {
-                            userSettings.userName = userName
-                            userSettingsRepository.updateUserSettings(userSettings)
+                        Column(horizontalAlignment = Alignment.CenterHorizontally) {
+                            Text(
+                                text = "V kolik hodin chcete vstávat?",
+                                color = MaterialTheme.colorScheme.onSurfaceVariant,
+                                style = MaterialTheme.typography.titleMedium,
+                                textAlign = TextAlign.Center
+                            )
+                            Spacer(modifier = Modifier.height(5.dp))
+                            TimePickerScreen(
+                                pickedTime = wakeUpTime,
+                                onTimePicked = {
+                                    wakeUpTime = it
+                                    userSettings.wakeUpTime = wakeUpTime.toString()
+                                    userSettingsRepository.updateUserSettings(userSettings)
+                                    bedTime = countBedTime(wakeUpTime, targetSleepTime)
+                                }
+                            )
+                        }
+                        Spacer(modifier = Modifier.width(30.dp))
+                        Row(
+                            modifier = Modifier
+                                .fillMaxSize()
+                                .background(
+                                    color = MaterialTheme.colorScheme.tertiary,
+                                    shape = MaterialTheme.shapes.medium
+                                )
+                                .padding(all = 10.dp),
+                            horizontalArrangement = Arrangement.Center,
+                            verticalAlignment = Alignment.CenterVertically
+                        ) {
 
-                        }) {
-                            Text(text = "Potvrdit změnu")
+                            Text(
+                                text = "Spát půjdete v: \n${formattedBedTime}",
+                                color = MaterialTheme.colorScheme.onTertiary,
+                                style = MaterialTheme.typography.bodyLarge,
+                                textAlign = TextAlign.Center
+                            )
+                            Spacer(modifier = Modifier.width(40.dp))
+                            Text(
+                                text = "Vstanete v: \n${formattedWakeUpTime}",
+                                color = MaterialTheme.colorScheme.onTertiary,
+                                style = MaterialTheme.typography.bodyLarge,
+                                textAlign = TextAlign.Center
+                            )
+                        }
+                    }
+                }
+                Spacer(modifier = Modifier.height(10.dp))
+
+                Card(
+                    modifier = Modifier
+                        .background(
+                            color = MaterialTheme.colorScheme.surfaceVariant,
+                            shape = MaterialTheme.shapes.large
+                        )
+                        .padding(all = 10.dp)
+                ) {
+                    Column(horizontalAlignment = Alignment.CenterHorizontally) {
+                        Text(
+                            text = "Změna uživatelského jména",
+                            color = MaterialTheme.colorScheme.primary,
+                            style = MaterialTheme.typography.titleLarge,
+                            modifier = Modifier.fillMaxWidth(),
+                            textAlign = TextAlign.Center
+                        )
+                        Spacer(modifier = Modifier.height(10.dp))
+                        Text(
+                            text = "Jak chcete být zobrazován v žebříčku?",
+                            color = MaterialTheme.colorScheme.onSurfaceVariant,
+                            style = MaterialTheme.typography.titleMedium,
+                            textAlign = TextAlign.Center
+                        )
+                        Spacer(modifier = Modifier.height(5.dp))
+
+                        val keyboardController = LocalSoftwareKeyboardController.current
+                        var userName by remember { mutableStateOf(userSettings.userName) }
+                        OutlinedTextField(
+                            modifier = Modifier
+                                .width(280.dp)
+                                .padding(horizontal = 15.dp),
+                            value = userName,
+                            singleLine = true,
+                            keyboardOptions = KeyboardOptions(imeAction = ImeAction.Done),
+                            keyboardActions = KeyboardActions(
+                                onDone = { keyboardController?.hide() }),
+                            onValueChange = { userName = it },
+                            placeholder = { Text("Tvé jméno") },
+                            label = { Text(text = "Jak se jmenuješ?") }
+                        )
+
+                        Box(
+                            contentAlignment = Alignment.Center,
+                            modifier = Modifier
+                                .fillMaxWidth()
+                                .padding(10.dp)
+                        ) {
+                            Button(modifier = Modifier.background(
+                                color = MaterialTheme.colorScheme.primary,
+                                shape = MaterialTheme.shapes.large
+                            ), onClick = {
+                                userSettings.userName = userName
+                                userSettingsRepository.updateUserSettings(userSettings)
+                                coroutineScope.launch {
+                                    snackbarHostState.showSnackbar(
+                                        "Jméno změněno",
+                                        withDismissAction = true
+                                    )
+                                }
+
+                            }) {
+                                Text(text = "Potvrdit změnu")
+                            }
                         }
                     }
                 }

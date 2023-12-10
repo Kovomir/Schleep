@@ -29,6 +29,10 @@ import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.text.style.TextAlign
 import androidx.compose.ui.unit.dp
+import com.google.firebase.Firebase
+import com.google.firebase.auth.auth
+import com.google.firebase.firestore.firestore
+import com.google.firebase.firestore.toObject
 import com.kovomir.schleep.db.SleepRecord
 import com.kovomir.schleep.db.SleepRecordRepository
 import com.kovomir.schleep.db.UserSettings
@@ -36,9 +40,6 @@ import com.kovomir.schleep.utils.UserHighScore
 import com.kovomir.schleep.utils.countBedTime
 import com.kovomir.schleep.utils.followedSleepRoutine
 import com.kovomir.schleep.utils.fromLocalDateTime
-import com.google.firebase.auth.FirebaseAuth
-import com.google.firebase.firestore.FirebaseFirestore
-import com.google.firebase.firestore.toObject
 import kotlinx.coroutines.CoroutineScope
 import kotlinx.coroutines.Dispatchers
 import kotlinx.coroutines.launch
@@ -52,10 +53,10 @@ import java.time.LocalTime
 @Composable
 fun HomeScreen(
     sleepRecordRepository: SleepRecordRepository,
-    firestoreDatabase: FirebaseFirestore,
-    firebaseAuth: FirebaseAuth,
     userSettings: UserSettings
 ) {
+    val firestoreDatabase = Firebase.firestore
+    val firebaseAuth = Firebase.auth
     var lastSleepRecord by remember { mutableStateOf(sleepRecordRepository.getLastSleepRecord()) }
     var lastSleepRecordEndTime by remember { mutableStateOf(lastSleepRecord.endTime) }
     var lastSleepRecordStartTime by remember { mutableStateOf(lastSleepRecord.startTime) }
@@ -76,7 +77,6 @@ fun HomeScreen(
         Duration.between(targetSleepTime?.with(LocalTime.MIDNIGHT), targetSleepTime)
 
     val snackbarHostState = remember { SnackbarHostState() }
-    // Create a coroutine scope
     val coroutineScope = rememberCoroutineScope()
 
     val currentUser = firebaseAuth.currentUser
