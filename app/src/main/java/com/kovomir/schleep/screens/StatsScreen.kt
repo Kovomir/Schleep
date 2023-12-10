@@ -1,5 +1,6 @@
 package com.kovomir.schleep.screens
 
+import android.content.Context
 import androidx.compose.foundation.background
 import androidx.compose.foundation.layout.Arrangement
 import androidx.compose.foundation.layout.Box
@@ -15,14 +16,21 @@ import androidx.compose.foundation.verticalScroll
 import androidx.compose.material3.Button
 import androidx.compose.material3.Card
 import androidx.compose.material3.MaterialTheme
+import androidx.compose.material3.Scaffold
+import androidx.compose.material3.SnackbarHost
+import androidx.compose.material3.SnackbarHostState
 import androidx.compose.material3.Surface
 import androidx.compose.material3.Text
 import androidx.compose.runtime.Composable
+import androidx.compose.runtime.remember
+import androidx.compose.runtime.rememberCoroutineScope
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.text.style.TextAlign
 import androidx.compose.ui.unit.dp
 import androidx.navigation.NavController
+import com.google.firebase.Firebase
+import com.google.firebase.auth.auth
 import com.kovomir.schleep.db.SleepRecordRepository
 import com.kovomir.schleep.db.UserSettingsRepository
 import com.kovomir.schleep.utils.LEADERBOARDS_ROUTE
@@ -31,7 +39,8 @@ import com.kovomir.schleep.utils.countBedTime
 import com.kovomir.schleep.utils.followedSleepRoutine
 import com.kovomir.schleep.utils.getSleepLength
 import com.kovomir.schleep.utils.getSleepRecordsAfterDate
-import com.google.firebase.auth.FirebaseAuth
+import com.kovomir.schleep.utils.isInternetAvailable
+import kotlinx.coroutines.launch
 import java.time.Duration
 import java.time.LocalDateTime
 import java.time.LocalTime
@@ -41,8 +50,9 @@ fun StatsScreen(
     sleepRecordRepository: SleepRecordRepository,
     userSettingsRepository: UserSettingsRepository,
     navController: NavController,
-    firebaseAuth: FirebaseAuth
+    appContext: Context
 ) {
+    val firebaseAuth = Firebase.auth
     val sleepRecords = sleepRecordRepository.getAllCompleteSleepRecords()
     val userSettings = userSettingsRepository.getUserSettings()
     val targetSleepTime = LocalTime.parse(userSettings.targetSleepTime)
@@ -121,198 +131,210 @@ fun StatsScreen(
     }
 
     val scrollState = rememberScrollState()
+    val snackbarHostState = remember { SnackbarHostState() }
+    val coroutineScope = rememberCoroutineScope()
 
-    Surface(
-        modifier = Modifier
-            .fillMaxSize()
-            .background(MaterialTheme.colorScheme.background)
-    ) {
-        Column(
-            horizontalAlignment = Alignment.CenterHorizontally,
+    Scaffold(snackbarHost = { SnackbarHost(hostState = snackbarHostState) }) {
+        Surface(
             modifier = Modifier
-                .padding(all = 5.dp)
-                .background(color = MaterialTheme.colorScheme.background)
-                .fillMaxWidth()
+                .fillMaxSize()
+                .padding(it)
+                .background(MaterialTheme.colorScheme.background)
         ) {
-            Text(
-                text = "Statistiky",
-                color = MaterialTheme.colorScheme.primary,
-                style = MaterialTheme.typography.headlineLarge,
-                textAlign = TextAlign.Center
-            )
-            Spacer(modifier = Modifier.height(10.dp))
             Column(
+                horizontalAlignment = Alignment.CenterHorizontally,
                 modifier = Modifier
-                    .fillMaxSize()
-                    .verticalScroll(scrollState),
-                horizontalAlignment = Alignment.CenterHorizontally
+                    .padding(all = 5.dp)
+                    .background(color = MaterialTheme.colorScheme.background)
+                    .fillMaxWidth()
             ) {
-                Card(
-                    modifier = Modifier
-                        .background(
-                            color = MaterialTheme.colorScheme.surfaceVariant,
-                            shape = MaterialTheme.shapes.large
-                        )
-                        .padding(all = 10.dp)
-                ) {
-                    Text(
-                        text = "Celkový počet záznamů:",
-                        color = MaterialTheme.colorScheme.primary,
-                        style = MaterialTheme.typography.titleLarge,
-                        modifier = Modifier.fillMaxWidth(),
-                        textAlign = TextAlign.Center
-                    )
-                    Text(
-                        text = sleepRecordCount,
-                        color = MaterialTheme.colorScheme.onSurfaceVariant,
-                        style = MaterialTheme.typography.titleLarge,
-                        modifier = Modifier.fillMaxWidth(),
-                        textAlign = TextAlign.Center
-                    )
-                }
-
+                Text(
+                    text = "Statistiky",
+                    color = MaterialTheme.colorScheme.primary,
+                    style = MaterialTheme.typography.headlineLarge,
+                    textAlign = TextAlign.Center
+                )
                 Spacer(modifier = Modifier.height(10.dp))
-                Card(
+                Column(
                     modifier = Modifier
-                        .background(
-                            color = MaterialTheme.colorScheme.surfaceVariant,
-                            shape = MaterialTheme.shapes.large
-                        )
-                        .padding(all = 10.dp)
+                        .fillMaxSize()
+                        .verticalScroll(scrollState),
+                    horizontalAlignment = Alignment.CenterHorizontally
                 ) {
-                    Text(
-                        text = "Průměrná délka spánku:",
-                        color = MaterialTheme.colorScheme.primary,
-                        style = MaterialTheme.typography.titleLarge,
-                        modifier = Modifier.fillMaxWidth(),
-                        textAlign = TextAlign.Center
-                    )
-                    Text(
-                        text = averageSleepDuration,
-                        color = MaterialTheme.colorScheme.onSurfaceVariant,
-                        style = MaterialTheme.typography.titleLarge,
-                        modifier = Modifier.fillMaxWidth(),
-                        textAlign = TextAlign.Center
-                    )
-                }
-                Spacer(modifier = Modifier.height(10.dp))
-
-                Card(
-                    modifier = Modifier
-                        .background(
-                            color = MaterialTheme.colorScheme.surfaceVariant,
-                            shape = MaterialTheme.shapes.large
-                        )
-                        .padding(all = 10.dp)
-                ) {
-                    Text(
-                        text = "Úspěšnost dodržení spánkové rutiny za poslední týden:",
-                        color = MaterialTheme.colorScheme.primary,
-                        style = MaterialTheme.typography.titleLarge,
-                        modifier = Modifier.fillMaxWidth(),
-                        textAlign = TextAlign.Center
-                    )
-                    Row(
-                        horizontalArrangement = Arrangement.Center,
-                        modifier = Modifier.fillMaxWidth(),
-                        verticalAlignment = Alignment.CenterVertically
+                    Card(
+                        modifier = Modifier
+                            .background(
+                                color = MaterialTheme.colorScheme.surfaceVariant,
+                                shape = MaterialTheme.shapes.large
+                            )
+                            .padding(all = 10.dp)
                     ) {
                         Text(
-                            text = followingSleepRoutineString,
-                            color = MaterialTheme.colorScheme.onSurfaceVariant,
+                            text = "Celkový počet záznamů:",
+                            color = MaterialTheme.colorScheme.primary,
                             style = MaterialTheme.typography.titleLarge,
-                            modifier = Modifier.padding(horizontal = 10.dp),
+                            modifier = Modifier.fillMaxWidth(),
                             textAlign = TextAlign.Center
                         )
-                        if(lastWeekSleepRecords.isNotEmpty()){
-                            Text(
-                                text = "($sleepRecordsFollowingSleepRoutine z ${lastWeekSleepRecords.size})",
-                                color = MaterialTheme.colorScheme.onSurfaceVariant,
-                                style = MaterialTheme.typography.titleSmall,
-                                textAlign = TextAlign.Center
-                            )
-                        }
+                        Text(
+                            text = sleepRecordCount,
+                            color = MaterialTheme.colorScheme.onSurfaceVariant,
+                            style = MaterialTheme.typography.titleLarge,
+                            modifier = Modifier.fillMaxWidth(),
+                            textAlign = TextAlign.Center
+                        )
                     }
-                    Spacer(modifier = Modifier.height(5.dp))
-                    Box(
-                        contentAlignment = Alignment.Center,
-                        modifier = Modifier.fillMaxWidth()
-                    ) {
-                        Button(
-                            modifier = Modifier
-                                .padding(10.dp)
-                                .background(
-                                    color = MaterialTheme.colorScheme.primary,
-                                    shape = MaterialTheme.shapes.large
-                                ),
-                            onClick = {
-                                if (firebaseAuth.currentUser == null) {
-                                    navController.navigate(route = SIGNIN_SCREEN_ROUTE)
-                                } else {
-                                    navController.navigate(route = LEADERBOARDS_ROUTE)
-                                }
 
-                            }
+                    Spacer(modifier = Modifier.height(10.dp))
+                    Card(
+                        modifier = Modifier
+                            .background(
+                                color = MaterialTheme.colorScheme.surfaceVariant,
+                                shape = MaterialTheme.shapes.large
+                            )
+                            .padding(all = 10.dp)
+                    ) {
+                        Text(
+                            text = "Průměrná délka spánku:",
+                            color = MaterialTheme.colorScheme.primary,
+                            style = MaterialTheme.typography.titleLarge,
+                            modifier = Modifier.fillMaxWidth(),
+                            textAlign = TextAlign.Center
+                        )
+                        Text(
+                            text = averageSleepDuration,
+                            color = MaterialTheme.colorScheme.onSurfaceVariant,
+                            style = MaterialTheme.typography.titleLarge,
+                            modifier = Modifier.fillMaxWidth(),
+                            textAlign = TextAlign.Center
+                        )
+                    }
+                    Spacer(modifier = Modifier.height(10.dp))
+
+                    Card(
+                        modifier = Modifier
+                            .background(
+                                color = MaterialTheme.colorScheme.surfaceVariant,
+                                shape = MaterialTheme.shapes.large
+                            )
+                            .padding(all = 10.dp)
+                    ) {
+                        Text(
+                            text = "Úspěšnost dodržení spánkové rutiny za poslední týden:",
+                            color = MaterialTheme.colorScheme.primary,
+                            style = MaterialTheme.typography.titleLarge,
+                            modifier = Modifier.fillMaxWidth(),
+                            textAlign = TextAlign.Center
+                        )
+                        Row(
+                            horizontalArrangement = Arrangement.Center,
+                            modifier = Modifier.fillMaxWidth(),
+                            verticalAlignment = Alignment.CenterVertically
                         ) {
                             Text(
-                                text = "Žebříček nejlepších",
-                                color = MaterialTheme.colorScheme.onPrimary,
-                                style = MaterialTheme.typography.titleLarge
+                                text = followingSleepRoutineString,
+                                color = MaterialTheme.colorScheme.onSurfaceVariant,
+                                style = MaterialTheme.typography.titleLarge,
+                                modifier = Modifier.padding(horizontal = 10.dp),
+                                textAlign = TextAlign.Center
                             )
+                            if (lastWeekSleepRecords.isNotEmpty()) {
+                                Text(
+                                    text = "($sleepRecordsFollowingSleepRoutine z ${lastWeekSleepRecords.size})",
+                                    color = MaterialTheme.colorScheme.onSurfaceVariant,
+                                    style = MaterialTheme.typography.titleSmall,
+                                    textAlign = TextAlign.Center
+                                )
+                            }
+                        }
+                        Spacer(modifier = Modifier.height(5.dp))
+                        Box(
+                            contentAlignment = Alignment.Center,
+                            modifier = Modifier.fillMaxWidth()
+                        ) {
+                            Button(
+                                modifier = Modifier
+                                    .padding(10.dp)
+                                    .background(
+                                        color = MaterialTheme.colorScheme.primary,
+                                        shape = MaterialTheme.shapes.large
+                                    ),
+                                onClick = {
+                                    if (firebaseAuth.currentUser == null) {
+                                        navController.navigate(route = SIGNIN_SCREEN_ROUTE)
+                                    } else if (isInternetAvailable(appContext)) {
+                                        navController.navigate(route = LEADERBOARDS_ROUTE)
+                                    } else {
+                                        coroutineScope.launch {
+                                            snackbarHostState.showSnackbar(
+                                                "Nejdříve se připojte k internetu.",
+                                                withDismissAction = true
+                                            )
+                                        }
+                                    }
+
+                                }
+                            ) {
+                                Text(
+                                    text = "Žebříček nejlepších",
+                                    color = MaterialTheme.colorScheme.onPrimary,
+                                    style = MaterialTheme.typography.titleLarge
+                                )
+                            }
                         }
                     }
-                }
 
-                Spacer(modifier = Modifier.height(10.dp))
-                Card(
-                    modifier = Modifier
-                        .background(
-                            color = MaterialTheme.colorScheme.surfaceVariant,
-                            shape = MaterialTheme.shapes.large
+                    Spacer(modifier = Modifier.height(10.dp))
+                    Card(
+                        modifier = Modifier
+                            .background(
+                                color = MaterialTheme.colorScheme.surfaceVariant,
+                                shape = MaterialTheme.shapes.large
+                            )
+                            .padding(all = 10.dp)
+                    ) {
+                        Text(
+                            text = "Spánkový dluh za poslední týden:",
+                            color = MaterialTheme.colorScheme.primary,
+                            style = MaterialTheme.typography.titleLarge,
+                            modifier = Modifier.fillMaxWidth(),
+                            textAlign = TextAlign.Center
                         )
-                        .padding(all = 10.dp)
-                ) {
-                    Text(
-                        text = "Spánkový dluh za poslední týden:",
-                        color = MaterialTheme.colorScheme.primary,
-                        style = MaterialTheme.typography.titleLarge,
-                        modifier = Modifier.fillMaxWidth(),
-                        textAlign = TextAlign.Center
-                    )
-                    Text(
-                        text = sleepDebtPastWeekString,
-                        color = MaterialTheme.colorScheme.onSurfaceVariant,
-                        style = MaterialTheme.typography.titleLarge,
-                        modifier = Modifier.fillMaxWidth(),
-                        textAlign = TextAlign.Center
-                    )
-                }
-
-                Spacer(modifier = Modifier.height(10.dp))
-                Card(
-                    modifier = Modifier
-                        .background(
-                            color = MaterialTheme.colorScheme.surfaceVariant,
-                            shape = MaterialTheme.shapes.large
+                        Text(
+                            text = sleepDebtPastWeekString,
+                            color = MaterialTheme.colorScheme.onSurfaceVariant,
+                            style = MaterialTheme.typography.titleLarge,
+                            modifier = Modifier.fillMaxWidth(),
+                            textAlign = TextAlign.Center
                         )
-                        .padding(all = 10.dp)
-                ) {
-                    Text(
-                        text = "Spánek navíc za poslední týden:",
-                        color = MaterialTheme.colorScheme.primary,
-                        style = MaterialTheme.typography.titleLarge,
-                        modifier = Modifier.fillMaxWidth(),
-                        textAlign = TextAlign.Center
-                    )
-                    Text(
-                        text = extraSleepPastWeekString,
-                        color = MaterialTheme.colorScheme.onSurfaceVariant,
-                        style = MaterialTheme.typography.titleLarge,
-                        modifier = Modifier.fillMaxWidth(),
-                        textAlign = TextAlign.Center
-                    )
-                }
+                    }
 
+                    Spacer(modifier = Modifier.height(10.dp))
+                    Card(
+                        modifier = Modifier
+                            .background(
+                                color = MaterialTheme.colorScheme.surfaceVariant,
+                                shape = MaterialTheme.shapes.large
+                            )
+                            .padding(all = 10.dp)
+                    ) {
+                        Text(
+                            text = "Spánek navíc za poslední týden:",
+                            color = MaterialTheme.colorScheme.primary,
+                            style = MaterialTheme.typography.titleLarge,
+                            modifier = Modifier.fillMaxWidth(),
+                            textAlign = TextAlign.Center
+                        )
+                        Text(
+                            text = extraSleepPastWeekString,
+                            color = MaterialTheme.colorScheme.onSurfaceVariant,
+                            style = MaterialTheme.typography.titleLarge,
+                            modifier = Modifier.fillMaxWidth(),
+                            textAlign = TextAlign.Center
+                        )
+                    }
+
+                }
             }
         }
     }

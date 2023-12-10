@@ -1,5 +1,8 @@
 package com.kovomir.schleep.utils
 
+import android.content.Context
+import android.net.ConnectivityManager
+import android.net.NetworkCapabilities
 import com.kovomir.schleep.db.SleepRecord
 import java.time.Duration
 import java.time.LocalDateTime
@@ -93,7 +96,6 @@ fun followedSleepRoutine(
 
 }
 
-/*
 fun isInternetAvailable(context: Context): Boolean {
     var result = false
     val connectivityManager =
@@ -109,4 +111,4 @@ fun isInternetAvailable(context: Context): Boolean {
     }
 
     return result
-}*/
+}

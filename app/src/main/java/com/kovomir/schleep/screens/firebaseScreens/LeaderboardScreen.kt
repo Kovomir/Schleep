@@ -25,16 +25,17 @@ import androidx.compose.ui.Modifier
 import androidx.compose.ui.text.style.TextAlign
 import androidx.compose.ui.unit.dp
 import androidx.navigation.NavController
+import com.google.android.gms.auth.api.identity.SignInClient
+import com.google.firebase.Firebase
+import com.google.firebase.auth.auth
+import com.google.firebase.firestore.DocumentSnapshot
+import com.google.firebase.firestore.FirebaseFirestoreException
+import com.google.firebase.firestore.Query
+import com.google.firebase.firestore.firestore
 import com.kovomir.schleep.db.UserSettingsRepository
 import com.kovomir.schleep.utils.HorizontalLine
 import com.kovomir.schleep.utils.SIGNIN_SCREEN_ROUTE
 import com.kovomir.schleep.utils.UserHighScore
-import com.google.android.gms.auth.api.identity.SignInClient
-import com.google.firebase.auth.FirebaseAuth
-import com.google.firebase.firestore.DocumentSnapshot
-import com.google.firebase.firestore.FirebaseFirestore
-import com.google.firebase.firestore.FirebaseFirestoreException
-import com.google.firebase.firestore.Query
 import kotlinx.coroutines.CoroutineScope
 import kotlinx.coroutines.Dispatchers
 import kotlinx.coroutines.launch
@@ -44,12 +45,12 @@ import java.util.concurrent.CancellationException
 
 @Composable
 fun LeaderboardScreen(
-    firestoreDatabase: FirebaseFirestore,
-    firebaseAuth: FirebaseAuth,
     oneTapClient: SignInClient,
     navController: NavController,
     userSettingsRepository: UserSettingsRepository
 ) {
+    val firestoreDatabase = Firebase.firestore
+    val firebaseAuth = Firebase.auth
     val userSettings = userSettingsRepository.getUserSettings()
     val userHighScores = firestoreDatabase.collection("userScores")
 
@@ -260,7 +261,7 @@ fun LeaderboardScreen(
                             style = MaterialTheme.typography.bodyLarge,
                         )
                         Text(
-                            text = currentUserHighScore.userName,
+                            text = userSettings.userName,
                             color = MaterialTheme.colorScheme.primary,
                             style = MaterialTheme.typography.bodyLarge,
                         )
