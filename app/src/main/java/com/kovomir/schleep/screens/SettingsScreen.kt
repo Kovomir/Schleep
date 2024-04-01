@@ -1,5 +1,8 @@
 package com.kovomir.schleep.screens
 
+import android.content.ContentValues
+import android.content.Context
+import android.util.Log
 import androidx.compose.foundation.background
 import androidx.compose.foundation.layout.Arrangement
 import androidx.compose.foundation.layout.Box
@@ -38,15 +41,23 @@ import androidx.compose.ui.platform.LocalSoftwareKeyboardController
 import androidx.compose.ui.text.input.ImeAction
 import androidx.compose.ui.text.style.TextAlign
 import androidx.compose.ui.unit.dp
+import com.google.firebase.Firebase
+import com.google.firebase.auth.auth
+import com.google.firebase.firestore.firestore
 import com.kovomir.schleep.db.UserSettingsRepository
 import com.kovomir.schleep.utils.countBedTime
+import com.kovomir.schleep.utils.isInternetAvailable
+import kotlinx.coroutines.CoroutineScope
+import kotlinx.coroutines.Dispatchers
 import kotlinx.coroutines.launch
 import java.time.LocalTime
 import java.time.format.DateTimeFormatter
 
 @OptIn(ExperimentalComposeUiApi::class)
 @Composable
-fun SettingsScreen(userSettingsRepository: UserSettingsRepository) {
+fun SettingsScreen(userSettingsRepository: UserSettingsRepository, appContext: Context) {
+    val firestoreDatabase = Firebase.firestore
+    val currentUser = Firebase.auth.currentUser
     val userSettings = userSettingsRepository.getUserSettings()
 
     var wakeUpTime by remember {
@@ -79,6 +90,9 @@ fun SettingsScreen(userSettingsRepository: UserSettingsRepository) {
     val scrollState = rememberScrollState()
     val snackbarHostState = remember { SnackbarHostState() }
     val coroutineScope = rememberCoroutineScope()
+
+    val updateScoreScope = CoroutineScope(Dispatchers.IO)
+
 
     Scaffold(snackbarHost = { SnackbarHost(hostState = snackbarHostState) }) {
         Surface(
@@ -133,6 +147,7 @@ fun SettingsScreen(userSettingsRepository: UserSettingsRepository) {
                             )
                             Spacer(modifier = Modifier.height(5.dp))
                             TimePickerScreen(
+                                initialTime = targetSleepTime,
                                 pickedTime = targetSleepTime,
                                 onTimePicked = {
                                     targetSleepTime = it
@@ -177,6 +192,7 @@ fun SettingsScreen(userSettingsRepository: UserSettingsRepository) {
                             )
                             Spacer(modifier = Modifier.height(5.dp))
                             TimePickerScreen(
+                                initialTime = wakeUpTime,
                                 pickedTime = wakeUpTime,
                                 onTimePicked = {
                                     wakeUpTime = it
@@ -242,41 +258,88 @@ fun SettingsScreen(userSettingsRepository: UserSettingsRepository) {
                         )
                         Spacer(modifier = Modifier.height(5.dp))
 
+
+                        val maxNameLength = 20
                         val keyboardController = LocalSoftwareKeyboardController.current
-                        var userName by remember { mutableStateOf(userSettings.userName) }
+                        var newUserName by remember { mutableStateOf(userSettings.userName) }
                         OutlinedTextField(
                             modifier = Modifier
                                 .width(280.dp)
                                 .padding(horizontal = 15.dp),
-                            value = userName,
+                            value = newUserName,
                             singleLine = true,
                             keyboardOptions = KeyboardOptions(imeAction = ImeAction.Done),
                             keyboardActions = KeyboardActions(
                                 onDone = { keyboardController?.hide() }),
-                            onValueChange = { userName = it },
+                            onValueChange = { if (it.length <= maxNameLength) newUserName = it },
                             placeholder = { Text("Tvé jméno") },
-                            label = { Text(text = "Jak se jmenuješ?") }
+                            label = { Text(text = "Jak se jmenuješ?") },
+                            supportingText = {
+                                Text(
+                                    textAlign = TextAlign.End,
+                                    modifier = Modifier.fillMaxWidth(),
+                                    text = "${newUserName.length} / ${maxNameLength}",
+                                )
+                            },
                         )
-
-                        Box(
+                        /*Box(
                             contentAlignment = Alignment.Center,
                             modifier = Modifier
                                 .fillMaxWidth()
                                 .padding(10.dp)
-                        ) {
-                            Button(modifier = Modifier.background(
+                        ) {*/
+                            Button(enabled = newUserName.isNotBlank(),
+                                modifier = Modifier.background(
                                 color = MaterialTheme.colorScheme.primary,
-                                shape = MaterialTheme.shapes.large
+                                shape = MaterialTheme.shapes.large,
                             ), onClick = {
-                                userSettings.userName = userName
-                                userSettingsRepository.updateUserSettings(userSettings)
-                                coroutineScope.launch {
-                                    snackbarHostState.showSnackbar(
-                                        "Jméno změněno",
-                                        withDismissAction = true
-                                    )
-                                }
+                                if (currentUser == null) {
+                                    userSettings.userName = newUserName
+                                    userSettingsRepository.updateUserSettings(userSettings)
+                                    coroutineScope.launch {
+                                        snackbarHostState.showSnackbar(
+                                            "Jméno změněno",
+                                            withDismissAction = true
+                                        )
+                                    }
+                                } else if (isInternetAvailable(appContext)) {
+                                    //update local db
+                                    userSettings.userName = newUserName
+                                    userSettingsRepository.updateUserSettings(userSettings)
+                                    coroutineScope.launch {
+                                        snackbarHostState.showSnackbar(
+                                            "Jméno změněno",
+                                            withDismissAction = true
+                                        )
+                                    }
 
+                                    updateScoreScope.launch {
+                                        //update firestore
+                                        firestoreDatabase.collection("userScores")
+                                            .document(currentUser.uid)
+                                            .update("userName", newUserName)
+                                            .addOnSuccessListener {
+                                                Log.d(
+                                                    ContentValues.TAG,
+                                                    "DocumentSnapshot successfully written!"
+                                                )
+                                            }
+                                            .addOnFailureListener { e ->
+                                                Log.w(
+                                                    ContentValues.TAG,
+                                                    "Error writing document",
+                                                    e
+                                                )
+                                            }
+                                    }
+                                } else {
+                                    coroutineScope.launch {
+                                        snackbarHostState.showSnackbar(
+                                            "Nejdříve se připojte k internetu.",
+                                            withDismissAction = true
+                                        )
+                                    }
+                                }
                             }) {
                                 Text(text = "Potvrdit změnu")
                             }
@@ -284,6 +347,6 @@ fun SettingsScreen(userSettingsRepository: UserSettingsRepository) {
                     }
                 }
             }
-        }
+     /*   }*/
     }
 }

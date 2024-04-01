@@ -117,6 +117,7 @@ fun FirstSetupScreen(userSettingsRepository: UserSettingsRepository, navControll
                                 )
                                 Spacer(modifier = Modifier.height(5.dp))
                                 TimePickerScreen(
+                                    initialTime = targetSleepTime,
                                     pickedTime = targetSleepTime,
                                     onTimePicked = {
                                         targetSleepTime = it
@@ -160,6 +161,7 @@ fun FirstSetupScreen(userSettingsRepository: UserSettingsRepository, navControll
                                 )
                                 Spacer(modifier = Modifier.height(5.dp))
                                 TimePickerScreen(
+                                    initialTime = wakeUpTime,
                                     pickedTime = wakeUpTime,
                                     onTimePicked = {
                                         wakeUpTime = it

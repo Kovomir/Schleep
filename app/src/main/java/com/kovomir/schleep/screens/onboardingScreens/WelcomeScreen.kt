@@ -116,6 +116,7 @@ fun WelcomeScreen(userSettingsRepository: UserSettingsRepository, navController:
                             modifier = Modifier.padding(20.dp)
                         )
 
+                        val maxNameLength = 20
                         val userSettings = userSettingsRepository.getUserSettings()
                         var userName by remember { mutableStateOf(userSettings.userName) }
                         val keyboardController = LocalSoftwareKeyboardController.current
@@ -128,9 +129,16 @@ fun WelcomeScreen(userSettingsRepository: UserSettingsRepository, navController:
                             keyboardOptions = KeyboardOptions(imeAction = ImeAction.Done),
                             keyboardActions = KeyboardActions(
                                 onDone = {keyboardController?.hide()}),
-                            onValueChange = { userName = it },
+                            onValueChange = { if (it.length <= maxNameLength) userName = it },
                             placeholder = { Text("Tvé jméno") },
-                            label = { Text(text = "Jak se jmenuješ?")}
+                            label = { Text(text = "Jak se jmenuješ?")},
+                            supportingText = {
+                                Text(
+                                    text = "${userName.length} / ${maxNameLength}",
+                                    modifier = Modifier.fillMaxWidth(),
+                                    textAlign = TextAlign.End,
+                                )
+                            },
                         )
                         Spacer(modifier = Modifier.height(10.dp))
 
