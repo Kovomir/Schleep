@@ -9,10 +9,10 @@ import androidx.core.app.NotificationCompat
 import androidx.core.content.ContextCompat
 import com.kovomir.schleep.MainActivity
 import com.kovomir.schleep.R
-import com.kovomir.schleep.utils.notifications.RemindersManager.ALARM_CHANNEL_ID
+import com.kovomir.schleep.utils.notifications.RemindersManager.CHANNEL_ID
 
 class NotificationReceiver : BroadcastReceiver() {
-    private val NOTIFICATION_ID = 1
+    private val NOTIFICATION_ID = 100
 
     override fun onReceive(context: Context, intent: Intent) {
         val notificationManager = ContextCompat.getSystemService(
@@ -22,13 +22,12 @@ class NotificationReceiver : BroadcastReceiver() {
 
         notificationManager.sendReminderNotification(
             applicationContext = context,
-            channelId = ALARM_CHANNEL_ID
+            channelId = CHANNEL_ID
         )
 
         //reschedule notification
         RemindersManager.startReminder(context.applicationContext)
     }
-
 
     private fun NotificationManager.sendReminderNotification(
         applicationContext: Context,
@@ -39,7 +38,7 @@ class NotificationReceiver : BroadcastReceiver() {
             applicationContext,
             1,
             contentIntent,
-            PendingIntent.FLAG_UPDATE_CURRENT
+            PendingIntent.FLAG_UPDATE_CURRENT or PendingIntent.FLAG_IMMUTABLE
         )
         val builder = NotificationCompat.Builder(applicationContext, channelId)
             .setContentTitle("Čas jít spát")

@@ -48,7 +48,7 @@ class MainActivity : ComponentActivity() {
 
     private fun createNotificationsChannels() {
         val channel = NotificationChannel(
-            RemindersManager.ALARM_CHANNEL_ID,
+            RemindersManager.CHANNEL_ID,
             "TIME_TO_SLEEP",
             NotificationManager.IMPORTANCE_HIGH
         )
