@@ -22,12 +22,16 @@ import androidx.compose.foundation.verticalScroll
 import androidx.compose.material3.Button
 import androidx.compose.material3.Card
 import androidx.compose.material3.MaterialTheme
+import androidx.compose.material3.Scaffold
+import androidx.compose.material3.SnackbarHost
+import androidx.compose.material3.SnackbarHostState
 import androidx.compose.material3.Surface
 import androidx.compose.material3.Text
 import androidx.compose.runtime.Composable
 import androidx.compose.runtime.getValue
 import androidx.compose.runtime.mutableStateOf
 import androidx.compose.runtime.remember
+import androidx.compose.runtime.rememberCoroutineScope
 import androidx.compose.runtime.setValue
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
@@ -43,8 +47,13 @@ import com.google.firebase.Firebase
 import com.google.firebase.auth.FirebaseUser
 import com.google.firebase.auth.GoogleAuthProvider
 import com.google.firebase.auth.auth
+import com.google.firebase.firestore.firestore
+import com.google.firebase.firestore.toObject
 import com.kovomir.schleep.R
+import com.kovomir.schleep.db.UserSettingsRepository
 import com.kovomir.schleep.utils.LEADERBOARDS_ROUTE
+import com.kovomir.schleep.utils.UserHighScore
+import com.kovomir.schleep.utils.isInternetAvailable
 import kotlinx.coroutines.CancellationException
 import kotlinx.coroutines.CoroutineScope
 import kotlinx.coroutines.Dispatchers
@@ -55,9 +64,12 @@ import kotlinx.coroutines.tasks.await
 fun SignInScreen(
     appContext: Context,
     navController: NavController,
+    userSettingsRepository: UserSettingsRepository,
     oneTapClient: SignInClient
 ) {
     val firebaseAuth = Firebase.auth
+    val firestoreDatabase = Firebase.firestore
+    val userSettings = userSettingsRepository.getUserSettings()
     var signedInUser by remember {
         mutableStateOf(firebaseAuth.currentUser)
     }
@@ -105,11 +117,23 @@ fun SignInScreen(
     val launcher =
         rememberLauncherForActivityResult(contract = ActivityResultContracts.StartIntentSenderForResult(),
             onResult = { result ->
-
                 if (result.resultCode == RESULT_OK) {
                     scope.launch {
                         signedInUser = signInWithIntent(intent = result.data ?: return@launch)
                         Log.d("DEBUGsignin", "$signedInUser")
+                        val currentUser = firebaseAuth.currentUser
+                        val userScoresCollection = firestoreDatabase.collection("userScores")
+
+                        CoroutineScope(Dispatchers.IO).launch {
+                            val documentSnapshot = userScoresCollection.document(currentUser!!.uid).get().await()
+                            val userData = documentSnapshot.toObject<UserHighScore>()
+                            val loggedUserName = userData?.userName
+
+                            if(loggedUserName != null){
+                                userSettings.userName = loggedUserName
+                                userSettingsRepository.updateUserSettings(userSettings)
+                            }
+                        }
                     }
                 } else Log.d(
                     "DEBUGsignin",
@@ -117,85 +141,99 @@ fun SignInScreen(
                 )
             })
 
+    val snackbarHostState = remember { SnackbarHostState() }
     val scrollState = rememberScrollState()
+    val coroutineScope = rememberCoroutineScope()
 
-    Surface(
-        modifier = Modifier
-            .fillMaxSize()
-            .background(MaterialTheme.colorScheme.background)
-    ) {
-        Column(
-            horizontalAlignment = Alignment.CenterHorizontally,
+    Scaffold(snackbarHost = { SnackbarHost(hostState = snackbarHostState) }) {
+        Surface(
             modifier = Modifier
-                .padding(all = 5.dp)
-                .background(color = MaterialTheme.colorScheme.background)
-                .fillMaxWidth()
+                .fillMaxSize()
+                .padding(it)
+                .background(MaterialTheme.colorScheme.background)
         ) {
-            Text(
-                text = "Přihlášení uživatele",
-                color = MaterialTheme.colorScheme.primary,
-                style = MaterialTheme.typography.headlineLarge,
-                textAlign = TextAlign.Center
-            )
-            Spacer(modifier = Modifier.height(10.dp))
-            Card(
+            Column(
+                horizontalAlignment = Alignment.CenterHorizontally,
                 modifier = Modifier
-                    .background(
-                        color = MaterialTheme.colorScheme.surfaceVariant,
-                        shape = MaterialTheme.shapes.large
-                    )
-                    .padding(all = 10.dp)
-                    .fillMaxSize()
+                    .padding(all = 5.dp)
+                    .background(color = MaterialTheme.colorScheme.background)
+                    .fillMaxWidth()
             ) {
-                Column(
-                    horizontalAlignment = Alignment.CenterHorizontally,
-                    verticalArrangement = Arrangement.Center,
+                Text(
+                    text = "Přihlášení uživatele",
+                    color = MaterialTheme.colorScheme.primary,
+                    style = MaterialTheme.typography.headlineLarge,
+                    textAlign = TextAlign.Center
+                )
+                Spacer(modifier = Modifier.height(10.dp))
+                Card(
                     modifier = Modifier
-                        .fillMaxSize()
-                        .verticalScroll(scrollState)
-                ) {
-                    val painter: Painter = painterResource(id = R.drawable.achievement)
-                    Image(
-                        painter = painter, contentDescription = "achievement",
-                        contentScale = ContentScale.Fit,
-                        alignment = Alignment.Center
-                    )
-                    Text(
-                        text = "Přihlašte se a soupeřte s ostatními uživateli v dodržování spánkové rutiny." + " Pro navýšení skóre musí být vaše cílená doba spánku natavena na alespoň 6 hodin.",
-                        textAlign = TextAlign.Justify,
-                        color = MaterialTheme.colorScheme.onSurfaceVariant,
-
+                        .background(
+                            color = MaterialTheme.colorScheme.surfaceVariant,
+                            shape = MaterialTheme.shapes.large
                         )
-                    Spacer(modifier = Modifier.height(20.dp))
-                    Button(modifier = Modifier.background(
-                        color = MaterialTheme.colorScheme.primary,
-                        shape = MaterialTheme.shapes.large
-                    ), onClick = {
-                        scope.launch {
-                            val signInIntentSender = signIn()
-                            launcher.launch(
-                                IntentSenderRequest.Builder(
-                                    signInIntentSender ?: return@launch
-                                ).build()
+                        .padding(all = 10.dp)
+                        .fillMaxSize()
+                ) {
+                    Column(
+                        horizontalAlignment = Alignment.CenterHorizontally,
+                        verticalArrangement = Arrangement.Center,
+                        modifier = Modifier
+                            .fillMaxSize()
+                            .verticalScroll(scrollState)
+                    ) {
+                        val painter: Painter = painterResource(id = R.drawable.achievement)
+                        Image(
+                            painter = painter, contentDescription = "achievement",
+                            contentScale = ContentScale.Fit,
+                            alignment = Alignment.Center
+                        )
+                        Text(
+                            text = "Přihlašte se a soupeřte s ostatními uživateli v dodržování spánkové rutiny." + " Pro navýšení skóre musí být vaše cílená doba spánku nastavena na alespoň 6 hodin.",
+                            textAlign = TextAlign.Justify,
+                            color = MaterialTheme.colorScheme.onSurfaceVariant,
+
+                            )
+                        Spacer(modifier = Modifier.height(20.dp))
+                        Button(modifier = Modifier.background(
+                            color = MaterialTheme.colorScheme.primary,
+                            shape = MaterialTheme.shapes.large
+                        ), onClick = {
+                            if (isInternetAvailable(appContext)) {
+                                scope.launch {
+                                    val signInIntentSender = signIn()
+                                    launcher.launch(
+                                        IntentSenderRequest.Builder(
+                                            signInIntentSender ?: return@launch
+                                        ).build()
+                                    )
+                                }
+                            } else {
+                                coroutineScope.launch {
+                                    snackbarHostState.showSnackbar(
+                                        "Nejdříve se připojte k internetu.",
+                                        withDismissAction = true
+                                    )
+                                }
+                            }
+                        }) {
+                            Text(
+                                text = "Přihlásit se účtem Google",
+                                color = MaterialTheme.colorScheme.onPrimary,
+                                style = MaterialTheme.typography.titleMedium
                             )
                         }
-                    }) {
+                        Spacer(modifier = Modifier.height(20.dp))
                         Text(
-                            text = "Přihlásit se účtem Google",
-                            color = MaterialTheme.colorScheme.onPrimary,
-                            style = MaterialTheme.typography.titleMedium
+                            text = "Ujistěte se, že jste připojeni k internetu.",
+                            textAlign = TextAlign.Center,
+                            color = MaterialTheme.colorScheme.onSurfaceVariant
                         )
                     }
-                    Spacer(modifier = Modifier.height(20.dp))
-                    Text(
-                        text = "Ujistěte se, že jste připojeni k internetu.",
-                        textAlign = TextAlign.Center,
-                        color = MaterialTheme.colorScheme.onSurfaceVariant
-                    )
                 }
+
             }
 
         }
-
     }
 }

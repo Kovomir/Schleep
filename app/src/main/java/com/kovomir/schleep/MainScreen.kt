@@ -176,7 +176,7 @@ fun MainScreen(
                     HistoryScreen(sleepRecordRepository = sleepRecordRepository)
                 }
                 composable(route = BottomNavItem.Settings.route) {
-                    SettingsScreen(userSettingsRepository = userSettingsRepository)
+                    SettingsScreen(userSettingsRepository = userSettingsRepository, appContext = appContext)
                 }
                 composable(route = BottomNavItem.Stats.route) {
                     StatsScreen(
@@ -194,7 +194,8 @@ fun MainScreen(
                 composable(route = FIRST_SETUP_SCREEN_ROUTE) {
                     FirstSetupScreen(
                         userSettingsRepository = userSettingsRepository,
-                        navController = navController
+                        navController = navController,
+                        appContext = appContext
                     )
                 }
                 composable(route = WELCOME_SCREEN_ROUTE) {
@@ -207,7 +208,8 @@ fun MainScreen(
                     SignInScreen(
                         appContext = appContext,
                         navController = navController,
-                        oneTapClient = oneTapClient
+                        oneTapClient = oneTapClient,
+                        userSettingsRepository = userSettingsRepository
                     )
                 }
                 composable(route = LEADERBOARDS_ROUTE) {

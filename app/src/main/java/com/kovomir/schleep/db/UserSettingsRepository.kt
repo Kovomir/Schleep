@@ -7,11 +7,11 @@ class UserSettingsRepository(private val userSettingsDao: UserSettingsDao) {
     fun getUserSettings(): UserSettings {
         var userSettings = userSettingsDao.getUserSettings()
 
-        // Defaultní nastavení, pokud je databáze prázdná
+        // Default settings, if the db is empty
         if (userSettings == null) {
             userSettings = UserSettings(
                 id = 1,
-                wakeUpTime = LocalTime.of(8, 0).toString(),
+                wakeUpTime = LocalTime.of(7, 0).toString(),
                 targetSleepTime = LocalTime.of(8, 0).toString(),
                 userName = "",
                 firstLaunch = true

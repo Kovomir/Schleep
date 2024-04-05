@@ -217,25 +217,34 @@ fun HomeScreen(
                                                         )
                                                     }
 
-                                                    var currentUserHighScore :UserHighScore?
+                                                    var currentUserHighScore: UserHighScore?
+                                                    val shouldIncreaseScore = followedSleepRoutine(
+                                                        lastSleepRecord,
+                                                        targetSleepDuration,
+                                                        targetSleepStartTime,
+                                                        targetWakeUpTime
+                                                    ) && targetSleepDuration >= Duration.ofHours(6)
+
                                                     //update Firestore leaderboard
                                                     if (currentUser != null) {
                                                         CoroutineScope(Dispatchers.IO).launch {
-                                                            runBlocking{currentUserHighScore =
-                                                               getCurrentUserData()}
+                                                            runBlocking {
+                                                                currentUserHighScore =
+                                                                    getCurrentUserData()
+                                                            }
                                                             userScore =
                                                                 currentUserHighScore!!.score
                                                             userHighScore =
                                                                 currentUserHighScore!!.highestScore
 
-                                                            if (followedSleepRoutine(
-                                                                    lastSleepRecord,
-                                                                    targetSleepDuration,
-                                                                    targetSleepStartTime,
-                                                                    targetWakeUpTime
-                                                                ) && targetSleepDuration >= Duration.ofHours(6)
-                                                            ) {
+                                                            if (shouldIncreaseScore) {
                                                                 userScore++
+                                                                coroutineScope.launch {
+                                                                    snackbarHostState.showSnackbar(
+                                                                        "Výborně! Skóre +1",
+                                                                        withDismissAction = true
+                                                                    )
+                                                                }
                                                             }
 
                                                             if (userScore > userHighScore) {
@@ -278,7 +287,7 @@ fun HomeScreen(
                                         }
                                     }
                                     Spacer(modifier = Modifier.height(15.dp))
-                                    if(currentUser != null){
+                                    if (currentUser != null) {
                                         Text(
                                             text = "Pro navýšení skóre se musíš připojit k internetu a tvá cílená doba spánku musí být alespoň 6 hodin.",
                                             color = MaterialTheme.colorScheme.onSurfaceVariant,
