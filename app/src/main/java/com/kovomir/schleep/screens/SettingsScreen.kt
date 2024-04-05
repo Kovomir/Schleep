@@ -47,6 +47,7 @@ import com.google.firebase.firestore.firestore
 import com.kovomir.schleep.db.UserSettingsRepository
 import com.kovomir.schleep.utils.countBedTime
 import com.kovomir.schleep.utils.isInternetAvailable
+import com.kovomir.schleep.utils.notifications.RemindersManager
 import kotlinx.coroutines.CoroutineScope
 import kotlinx.coroutines.Dispatchers
 import kotlinx.coroutines.launch
@@ -154,6 +155,7 @@ fun SettingsScreen(userSettingsRepository: UserSettingsRepository, appContext: C
                                     userSettings.targetSleepTime = targetSleepTime.toString()
                                     userSettingsRepository.updateUserSettings(userSettings)
                                     bedTime = countBedTime(wakeUpTime, targetSleepTime)
+                                    RemindersManager.restartReminder(appContext)
                                 }
                             )
                         }
@@ -199,6 +201,7 @@ fun SettingsScreen(userSettingsRepository: UserSettingsRepository, appContext: C
                                     userSettings.wakeUpTime = wakeUpTime.toString()
                                     userSettingsRepository.updateUserSettings(userSettings)
                                     bedTime = countBedTime(wakeUpTime, targetSleepTime)
+                                    RemindersManager.restartReminder(appContext)
                                 }
                             )
                         }
@@ -282,17 +285,9 @@ fun SettingsScreen(userSettingsRepository: UserSettingsRepository, appContext: C
                                 )
                             },
                         )
-                        /*Box(
-                            contentAlignment = Alignment.Center,
-                            modifier = Modifier
-                                .fillMaxWidth()
-                                .padding(10.dp)
-                        ) {*/
-                            Button(enabled = newUserName.isNotBlank(),
-                                modifier = Modifier.background(
-                                color = MaterialTheme.colorScheme.primary,
-                                shape = MaterialTheme.shapes.large,
-                            ), onClick = {
+                        Button(enabled = newUserName.isNotBlank(),
+                            modifier = Modifier.padding(10.dp),
+                            onClick = {
                                 if (currentUser == null) {
                                     userSettings.userName = newUserName
                                     userSettingsRepository.updateUserSettings(userSettings)
@@ -341,12 +336,11 @@ fun SettingsScreen(userSettingsRepository: UserSettingsRepository, appContext: C
                                     }
                                 }
                             }) {
-                                Text(text = "Potvrdit změnu")
-                            }
+                            Text(text = "Potvrdit změnu")
                         }
                     }
                 }
             }
-     /*   }*/
+        }
     }
 }

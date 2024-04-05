@@ -1,5 +1,6 @@
 package com.kovomir.schleep.screens.onboardingScreens
 
+import android.content.Context
 import androidx.compose.foundation.background
 import androidx.compose.foundation.layout.Arrangement
 import androidx.compose.foundation.layout.Box
@@ -31,11 +32,12 @@ import com.kovomir.schleep.utils.BottomNavItem
 import com.kovomir.schleep.utils.countBedTime
 import com.kovomir.schleep.db.UserSettingsRepository
 import com.kovomir.schleep.screens.TimePickerScreen
+import com.kovomir.schleep.utils.notifications.RemindersManager
 import java.time.LocalTime
 import java.time.format.DateTimeFormatter
 
 @Composable
-fun FirstSetupScreen(userSettingsRepository: UserSettingsRepository, navController: NavController) {
+fun FirstSetupScreen(userSettingsRepository: UserSettingsRepository, navController: NavController, appContext: Context) {
     val userSettings = userSettingsRepository.getUserSettings()
 
     var wakeUpTime by remember {
@@ -124,6 +126,7 @@ fun FirstSetupScreen(userSettingsRepository: UserSettingsRepository, navControll
                                         userSettings.targetSleepTime = targetSleepTime.toString()
                                         userSettingsRepository.updateUserSettings(userSettings)
                                         bedTime = countBedTime(wakeUpTime, targetSleepTime)
+                                        RemindersManager.restartReminder(appContext)
                                     }
                                 )
                             }
@@ -168,6 +171,7 @@ fun FirstSetupScreen(userSettingsRepository: UserSettingsRepository, navControll
                                         userSettings.wakeUpTime = wakeUpTime.toString()
                                         userSettingsRepository.updateUserSettings(userSettings)
                                         bedTime = countBedTime(wakeUpTime, targetSleepTime)
+                                        RemindersManager.restartReminder(appContext)
                                     }
                                 )
                             }

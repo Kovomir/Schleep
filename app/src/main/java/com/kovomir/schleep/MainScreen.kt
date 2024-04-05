@@ -194,7 +194,8 @@ fun MainScreen(
                 composable(route = FIRST_SETUP_SCREEN_ROUTE) {
                     FirstSetupScreen(
                         userSettingsRepository = userSettingsRepository,
-                        navController = navController
+                        navController = navController,
+                        appContext = appContext
                     )
                 }
                 composable(route = WELCOME_SCREEN_ROUTE) {

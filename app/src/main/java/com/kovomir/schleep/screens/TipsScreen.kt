@@ -50,7 +50,7 @@ val article1 = Article(
     text = "Světlo, teplota a hluk jsou zásadní faktory prostředí, které mají kritický vliv na váš noční odpočinek. Ideální prostředí pro spánek by mělo být temné, chladné a tiché. Dle expertů je nejoptimálnější teplota vzduchu v rozmezí od 15,5 do 19,5 °C. " +
             "Svojí roli hraje také kvalita vzduchu, například vysoká hladina oxidu uhličitého nebo alergenů, může mít negativní účinky. Temnější prostředí pak podporuje tvorbu melatoninu, který lidem pomáhá usnout, zatímco vyvarování se všech rušivých zvukových vjemů předchází přerušovanému spánku.\n\n" +
             "Otevřením okna před spaním je v našich podnebních podmínkách možné efektivně regulovat teplotu a kvalitu vzduchu v ložnici. Pro blokování světelného znečistění se nabízí například použití zatemňovacích závěsů, žaluzií a v poslední řadě může pomoci maska na oči. Přílišný hluk lze pak řešit" +
-            " ku příkladu odhlučněním oken či užitím špuntů do uší. Odstraněním elektronických zařízení z místnosti může člověk snížit nechtěný zvukový i světelný ruch.",
+            " ku příkladu odhlučněním oken či užitím špuntů do uší. Odstraněním elektronických zařízení z místnosti můžete snížit nechtěný zvukový i světelný ruch.",
     imageId = R.drawable.bedroom
 )
 
@@ -79,15 +79,15 @@ val article4 = Article(
             "\n" +
             "Děti (1-2 roky) by měly spát 11-14 hodin denně, zatímco batolata (3-4 roky) by měla spát 10-13 hodin. Pro školní věk (5-12 let) se doporučuje 9-11 hodin spánku denně, což pomáhá vývoji a učení. U dospívajících (13-18 let) je optimální délka spánku 8-10 hodin, což podporuje fyzický a duševní rozvoj v tomto důležitém období. \n" +
             "\n" +
-            "Důležité je si uvědomit, že potřeba spánu je individuální. V průběhu života se navíc mohou objevovat různé faktory, které mohou ovlivnit kvalitu a délku spánku. To může zahrnovat změny ve spánkových vzorcích, zvýšenou potřebu nočních návštěv koupelny či spánkové apnoe. Je proto důležité naslouchat svému tělu a reagovat na jeho signály. Pokud osoba trpí problémy se spánkem, měla by se poradit se svým lékařem.",
+            "Důležité je si uvědomit, že potřebná délka spánku je u lidí individuální. Je proto důležité naslouchat svému tělu a reagovat na jeho signály. Pokud trpíte problémy se spánkem, měli byste se poradit se svým lékařem.",
     imageId = R.drawable.clock_drawing
 )
 
 val article5 = Article(
     title = "Spánkový dluh",
-    text = "Pokaždé když spíte kratší dobu, než by ste měli, narůstá váš spánkový dluh. Zvětšuje se kumulativně, což znamená, že se každý nedostatek přičte na váš celkový dluh. Pokud tedy týden budete spát pouze 6 místo 7 hodin, tak se váš celkový dluh zvětší o 7 hodin. Chronický spánkový dluh, který se hromadí po měsíce a roky, může mít závažné důsledky. Mezi ně se řadí zvýšené riziko vzniku zdravotních problémů, včetně diabetu.\n" +
+    text = "Pokaždé když spíte kratší dobu, než by ste měli, narůstá váš spánkový dluh. Zvětšuje se kumulativně, což znamená, že se každý nedostatek přičte na váš celkový dluh. Pokud tedy týden budete spát pouze 6 místo 7 hodin, tak se váš celkový dluh zvětší o 7 hodin. Chronický spánkový dluh, který se hromadí po měsíce a roky, může mít závažné důsledky, které lze jen těžko zvrátit. Mezi ně se řadí zvýšené riziko vzniku zdravotních problémů včetně diabetu, srdečních příhod i obezity.\n" +
             "\n" +
-            "Ačkoli se můžete pokusit dohnat ztracený spánek, nejde o úplnou náhradu. Podle výzkumu jsou třeba čtyři dny na plné zotavení z jedné hodiny ztraceného spánku. Spánek navíc může odstranit únavu a snížit hladinu stresových hormonů v těle, ale výzkumy naznačují, že chronický spánkový dluh způsobuje problémy, které lze jen těžko zvrátit. Prevence spánkového dluhu je klíčová pro udržení zdravého spánku a dobrého zdraví.",
+            "Ačkoli se můžete pokusit dohnat ztracený spánek, nejde o úplnou náhradu. Podle výzkumu jsou třeba čtyři dny na plné zotavení z jedné hodiny ztraceného spánku. Prevence spánkového dluhu je klíčová pro udržení zdravého spánku a dobrého zdraví.",
     imageId = R.drawable.sleep_debt
 )
 
